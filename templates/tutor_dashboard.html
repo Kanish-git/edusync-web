@@ -1,0 +1,757 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* ── Dark Mode ─────────────────────────────────── */
+    body.dark-mode {
+        background-color: #0f172a !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .card {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .form-control,
+    body.dark-mode .form-select {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    body.dark-mode .navbar {
+        background: rgba(15, 23, 42, 0.9) !important;
+    }
+
+    body.dark-mode .table {
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .sticky-top {
+        background-color: #1e293b !important;
+    }
+
+    body.dark-mode .list-group-item {
+        background-color: transparent !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .stat-card {
+        background: #1e293b !important;
+    }
+
+    body.dark-mode .history-card {
+        background: #1e293b !important;
+    }
+
+    body.dark-mode .leaderboard-card {
+        background: #1e293b !important;
+    }
+
+    body.dark-mode .progress-wrap {
+        background: #1e293b !important;
+    }
+
+    body.dark-mode .activity-card {
+        background: #1e293b !important;
+    }
+
+    body.dark-mode .tab-btn {
+        color: #94a3b8 !important;
+    }
+
+    body.dark-mode .tab-btn.active {
+        background: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .section-card {
+        background: #1e293b !important;
+    }
+
+    /* ── General ───────────────────────────────────── */
+    .section-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.25rem;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        border-radius: 14px;
+        padding: 1rem;
+        text-align: center;
+        border: none;
+    }
+
+    .stat-num {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .stat-lbl {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        letter-spacing: 0.5px;
+    }
+
+    /* ── Tabs ──────────────────────────────────────── */
+    .tab-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .tab-btn {
+        padding: 6px 16px;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: #475569;
+        transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+        background: #4f46e5;
+        color: #fff;
+        border-color: #4f46e5;
+    }
+
+    /* ── Activity Feed ─────────────────────────────── */
+    .activity-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-top: 5px;
+        flex-shrink: 0;
+    }
+
+    /* ── Countdown ─────────────────────────────────── */
+    .countdown-box {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #4f46e5;
+        letter-spacing: 2px;
+    }
+
+    /* ── Toast ─────────────────────────────────────── */
+    #toast {
+        position: fixed;
+        bottom: 60px;
+        right: 20px;
+        background: #1e293b;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        display: none;
+        z-index: 9999;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ── Confirm Modal ─────────────────────────────── */
+    #confirmModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #confirmModal.show {
+        display: flex;
+    }
+
+    .modal-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 360px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    body.dark-mode .modal-box {
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+
+    /* ── Print ─────────────────────────────────────── */
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        body {
+            background: white !important;
+        }
+    }
+</style>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Confirm Delete Modal -->
+<div id="confirmModal">
+    <div class="modal-box">
+        <div style="font-size:2.5rem;">🗑️</div>
+        <h5 class="fw-bold mt-2 mb-1">Delete Entry?</h5>
+        <p class="text-muted mb-3" style="font-size:0.9rem;" id="modalStudentName"></p>
+        <p style="font-size:0.85rem; color:#ef4444;">This will permanently remove this student's submission.</p>
+        <div class="d-flex gap-2 justify-content-center mt-3">
+            <button onclick="closeModal()" class="btn btn-outline-secondary fw-semibold"
+                style="border-radius:10px; min-width:100px;">Cancel</button>
+            <button onclick="submitDelete()" class="btn btn-danger fw-semibold"
+                style="border-radius:10px; min-width:100px;">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4 mb-5">
+
+    <!-- ── Top Bar ───────────────────────────────── -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 no-print">
+        <div>
+            <h4 class="fw-bold mb-0">🎓 Tutor Dashboard</h4>
+            <small class="text-muted" id="liveClock"></small>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button onclick="exportCSV()" class="btn btn-sm btn-outline-success fw-semibold"
+                style="border-radius:10px;">📤 Export CSV</button>
+            <button onclick="window.print()" class="btn btn-sm btn-outline-secondary fw-semibold"
+                style="border-radius:10px;">🖨️ Print</button>
+            <button onclick="toggleDark()" id="darkBtn" class="btn btn-sm btn-outline-secondary fw-semibold"
+                style="border-radius:10px;">🌙 Dark</button>
+        </div>
+    </div>
+
+    <!-- ── Live Clock + Countdown ───────────────── -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="section-card d-flex align-items-center gap-3">
+                <div style="font-size:2rem;">⏰</div>
+                <div>
+                    <div class="text-muted" style="font-size:0.78rem; font-weight:600;">DEADLINE COUNTDOWN</div>
+                    <div class="countdown-box" id="countdown">--:--:--</div>
+                    <div class="text-muted" style="font-size:0.75rem;" id="deadlineLabel">No deadline set</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="section-card">
+                <div class="text-muted mb-1" style="font-size:0.78rem; font-weight:600;">SET DEADLINE FOR TODAY</div>
+                <div class="d-flex gap-2">
+                    <input type="datetime-local" id="deadlineInput" class="form-control form-control-sm"
+                        style="border-radius:10px;">
+                    <button onclick="setDeadline()" class="btn btn-sm btn-primary fw-semibold no-print"
+                        style="border-radius:10px;">Set</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Stats Bar ─────────────────────────────── -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm" style="background:#eff6ff;">
+                <div class="stat-num" style="color:#1d4ed8;" id="statTotal">{{ results | length }}</div>
+                <div class="stat-lbl">TOTAL</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm" style="background:#f0fdf4;">
+                <div class="stat-num" style="color:#16a34a;" id="statCleared">0</div>
+                <div class="stat-lbl">CLEARED</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm" style="background:#fff7ed;">
+                <div class="stat-num" style="color:#ea580c;" id="statPending">0</div>
+                <div class="stat-lbl">PENDING</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm" style="background:#fdf4ff;">
+                <div class="stat-num" style="color:#9333ea;" id="statPct">0%</div>
+                <div class="stat-lbl">COMPLETION</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Progress Bar ──────────────────────────── -->
+    <div class="section-card progress-wrap mb-4">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-semibold" style="font-size:0.9rem;">📊 Class Completion</span>
+            <span class="fw-bold text-primary" id="progressLabel">0%</span>
+        </div>
+        <div class="progress" style="height:14px; border-radius:10px;">
+            <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" id="progressBar"
+                role="progressbar" style="width:0%; border-radius:10px;"></div>
+        </div>
+        <div class="text-muted mt-1" style="font-size:0.78rem;" id="progressSub"></div>
+    </div>
+
+    <!-- ── Main Row ───────────────────────────────── -->
+    <div class="row g-4">
+
+        <!-- LEFT ─────────────────────────────────── -->
+        <div class="col-md-6">
+
+            <!-- Post Topic -->
+            <div class="section-card border-top border-primary border-4">
+                <h5 class="fw-bold mb-3">📌 Post Today's Topic</h5>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold text-muted">Topic Title</label>
+                        <input type="text" name="topic_name" class="form-control" placeholder="e.g. Intro to Python"
+                            required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold text-muted">Task Instructions</label>
+                        <textarea name="task_description" class="form-control" placeholder="Describe the assignment..."
+                            rows="3" required></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold text-muted">⏰ Deadline</label>
+                        <input type="datetime-local" name="deadline" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">📎 Support Document</label>
+                        <input type="file" name="document" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-semibold no-print"
+                        style="border-radius:10px; padding:10px;">
+                        🚀 Post Assignment
+                    </button>
+                </form>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="section-card leaderboard-card" style="background:linear-gradient(135deg,#fdf4ff,#eff6ff);">
+                <h5 class="fw-bold mb-3">🏆 Top Performers</h5>
+                <div id="leaderboard">
+                    <p class="text-muted small">No data yet.</p>
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="activity-card mb-3">
+                <h5 class="fw-bold mb-3">⚡ Live Activity Feed</h5>
+                <div id="activityFeed">
+                    <p class="text-muted small">Submissions will appear here.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT ────────────────────────────────── -->
+        <div class="col-md-6">
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="fw-bold mb-0">🎓 Student Results</h5>
+                    <span class="text-muted" style="font-size:0.78rem;" id="rowCount"></span>
+                </div>
+
+                <!-- Tab Filter -->
+                <div class="tab-row no-print">
+                    <button class="tab-btn active" onclick="tabFilter('all', this)">All</button>
+                    <button class="tab-btn" onclick="tabFilter('cleared', this)">✅ Cleared</button>
+                    <button class="tab-btn" onclick="tabFilter('pending', this)">⏳ Pending</button>
+                    <button class="tab-btn" onclick="tabFilter('failed', this)">❌ Failed</button>
+                </div>
+
+                <!-- Search -->
+                <div class="mb-3 no-print">
+                    <input type="text" id="searchInput" class="form-control form-control-sm"
+                        placeholder="🔍 Search name or reg no..." onkeyup="applyFilters()">
+                </div>
+
+                <!-- Scrollable Table -->
+                <div style="max-height:420px; overflow-y:auto; border-radius:8px;">
+                    <table class="table table-hover mb-0" id="resultsTable">
+                        <thead class="sticky-top" style="background:#fff;" id="tableHead">
+                            <tr>
+                                <th style="font-size:0.8rem; cursor:pointer;" onclick="sortTable(0)">#</th>
+                                <th style="font-size:0.8rem; cursor:pointer;" onclick="sortTable(1)">Student ↕</th>
+                                <th style="font-size:0.8rem; cursor:pointer;" onclick="sortTable(2)">Reg No ↕</th>
+                                <th style="font-size:0.8rem;">Topic</th>
+                                <th style="font-size:0.8rem;">Status</th>
+                                <th style="font-size:0.8rem;" class="no-print">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in results %}
+                            <tr id="row-{{ res.id }}">
+                                <td style="font-size:0.83rem; color:#94a3b8;">{{ loop.index }}</td>
+                                <td style="font-size:0.83rem;">{{ res.student_name }}</td>
+                                <td style="font-size:0.83rem;">{{ res.register_number }}</td>
+                                <td style="font-size:0.83rem;">{{ res.topic_name }}</td>
+                                <td>
+                                    {% if res.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    {% elif res.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Cleared</span>
+                                    {% endif %}
+                                </td>
+                                <td class="no-print">
+                                    <form action="{{ url_for('auth.delete_student_by_name') }}" method="POST">
+                                        <input type="hidden" name="student_name" value="{{ res.student_name }}">
+                                        <input type="hidden" name="register_number" value="{{ res.register_number }}">
+                                        <button type="submit" class="btn btn-sm btn-danger fw-bold"
+                                            style="border-radius:8px; padding:2px 10px; font-size:0.78rem;">
+                                            🗑️ Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Assignment History -->
+            <div class="section-card history-card" style="background:#f8fafc;">
+                <h5 class="fw-bold mb-3">📅 Assignment History</h5>
+                {% if history %}
+                <div style="max-height:200px; overflow-y:auto;">
+                    <ul class="list-group list-group-flush">
+                        {% for h in history %}
+                        <li class="list-group-item bg-transparent px-0 py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="fw-semibold" style="font-size:0.88rem;">{{ h.topic_name }}</span>
+                                    <div class="text-muted" style="font-size:0.74rem;">{{ h.posted_at }}</div>
+                                </div>
+                                <span class="badge bg-primary bg-opacity-10 text-primary" style="font-size:0.73rem;">
+                                    {{ h.submission_count }} submissions
+                                </span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0">No past assignments yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- ── Registered Students ──────────────────── -->
+            <div class="section-card" style="background:#fff;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">👥 Registered Students</h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary">{{ students | length }} total</span>
+                </div>
+                {% if students %}
+                <div style="max-height:300px; overflow-y:auto; border-radius:8px;">
+                    <table class="table table-hover mb-0" id="studentsTable">
+                        <thead class="sticky-top" style="background:#fff;">
+                            <tr>
+                                <th style="font-size:0.8rem;">#</th>
+                                <th style="font-size:0.8rem;">Name</th>
+                                <th style="font-size:0.8rem;">Reg No</th>
+                                <th style="font-size:0.8rem;" class="no-print">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr id="srow-{{ student.id }}">
+                                <td style="font-size:0.83rem; color:#94a3b8;">{{ loop.index }}</td>
+                                <td style="font-size:0.83rem; font-weight:600;">{{ student.username }}</td>
+                                <td style="font-size:0.83rem;">{{ student.register_number or '—' }}</td>
+                                <td class="no-print">
+                                    <form action="{{ url_for('auth.delete_student', student_id=student.id) }}"
+                                        method="POST"
+                                        onsubmit="return confirmStudentDelete(event, '{{ student.username }}', this)">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold"
+                                            style="border-radius:8px; padding:2px 12px; font-size:0.78rem;">
+                                            🗑 Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0">No students registered yet.</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Live Clock ────────────────────────────────────────
+    function updateClock() {
+        document.getElementById('liveClock').innerText =
+            'Today: ' + new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
+            ' | ' + new Date().toLocaleTimeString('en-IN');
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    // ── Deadline Countdown ────────────────────────────────
+    let deadlineTime = localStorage.getItem('tutorDeadline') ? new Date(localStorage.getItem('tutorDeadline')) : null;
+    function setDeadline() {
+        const val = document.getElementById('deadlineInput').value;
+        if (!val) return;
+        deadlineTime = new Date(val);
+        localStorage.setItem('tutorDeadline', val);
+        showToast('✅ Deadline set!');
+    }
+    function updateCountdown() {
+        if (!deadlineTime) return;
+        const diff = deadlineTime - new Date();
+        if (diff <= 0) {
+            document.getElementById('countdown').innerText = '⛔ TIME UP!';
+            document.getElementById('deadlineLabel').innerText = 'Deadline passed';
+            return;
+        }
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        document.getElementById('countdown').innerText = h + ':' + m + ':' + s;
+        document.getElementById('deadlineLabel').innerText = 'Until: ' + deadlineTime.toLocaleString('en-IN');
+    }
+    setInterval(updateCountdown, 1000);
+    if (localStorage.getItem('tutorDeadline'))
+        document.getElementById('deadlineInput').value = localStorage.getItem('tutorDeadline');
+
+    // ── Stats + Progress ──────────────────────────────────
+    function updateStats() {
+        const rows = document.querySelectorAll('#resultsTable tbody tr');
+        const total = rows.length;
+        let cleared = 0, pending = 0, failed = 0;
+        rows.forEach(row => {
+            const b = row.querySelector('.badge');
+            if (!b) return;
+            const t = b.innerText.toLowerCase();
+            if (t === 'cleared') cleared++;
+            else if (t === 'pending') pending++;
+            else if (t === 'failed') failed++;
+        });
+        const pct = total > 0 ? Math.round((cleared / total) * 100) : 0;
+        document.getElementById('statTotal').innerText = total;
+        document.getElementById('statCleared').innerText = cleared;
+        document.getElementById('statPending').innerText = pending;
+        document.getElementById('statPct').innerText = pct + '%';
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressLabel').innerText = pct + '%';
+        document.getElementById('progressSub').innerText =
+            cleared + ' cleared · ' + pending + ' pending · ' + failed + ' failed';
+        buildLeaderboard(rows);
+        buildActivityFeed(rows);
+    }
+
+    // ── Leaderboard ───────────────────────────────────────
+    function buildLeaderboard(rows) {
+        const cleared = [];
+        rows.forEach(row => {
+            const b = row.querySelector('.badge');
+            if (b && b.innerText.toLowerCase() === 'cleared') {
+                const c = row.querySelectorAll('td');
+                cleared.push({ name: c[1]?.innerText || '—', reg: c[2]?.innerText || '—' });
+            }
+        });
+        const medals = ['🥇', '🥈', '🥉'];
+        const lb = document.getElementById('leaderboard');
+        if (!cleared.length) { lb.innerHTML = '<p class="text-muted small">No cleared students yet.</p>'; return; }
+        lb.innerHTML = cleared.slice(0, 5).map((s, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e2e8f0;">
+            <span style="font-size:1.2rem;min-width:28px;">${medals[i] || '🎖️'}</span>
+            <div style="flex:1;">
+                <div style="font-weight:600;font-size:0.88rem;">${s.name}</div>
+                <div style="font-size:0.74rem;color:#94a3b8;">Reg: ${s.reg}</div>
+            </div>
+            <span class="badge bg-success">Cleared</span>
+        </div>`).join('');
+    }
+
+    // ── Activity Feed ─────────────────────────────────────
+    function buildActivityFeed(rows) {
+        const items = [];
+        rows.forEach(row => {
+            const c = row.querySelectorAll('td');
+            const b = row.querySelector('.badge');
+            if (!b) return;
+            const status = b.innerText;
+            const color = status === 'Cleared' ? '#22c55e' : status === 'Pending' ? '#f59e0b' : '#ef4444';
+            items.push({ name: c[1]?.innerText, topic: c[3]?.innerText, status, color });
+        });
+        const feed = document.getElementById('activityFeed');
+        if (!items.length) { feed.innerHTML = '<p class="text-muted small">No activity yet.</p>'; return; }
+        feed.innerHTML = items.slice(0, 6).map(i => `
+        <div class="activity-item">
+            <div class="activity-dot" style="background:${i.color};"></div>
+            <div>
+                <span style="font-weight:600;">${i.name}</span>
+                <span style="color:#64748b;"> submitted </span>
+                <span style="font-weight:500;">${i.topic}</span>
+                <span class="badge ms-1" style="background:${i.color}20;color:${i.color};font-size:0.7rem;">${i.status}</span>
+            </div>
+        </div>`).join('');
+    }
+
+    // ── Tab Filter ────────────────────────────────────────
+    let currentTab = 'all';
+    function tabFilter(tab, btn) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+    }
+
+    // ── Search + Tab Filter ───────────────────────────────
+    function applyFilters() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#resultsTable tbody tr');
+        let visible = 0;
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const badge = row.querySelector('.badge') ? row.querySelector('.badge').innerText.toLowerCase() : '';
+            const matchSearch = text.includes(q);
+            const matchTab = currentTab === 'all' || badge === currentTab;
+            if (matchSearch && matchTab) { row.style.display = ''; visible++; }
+            else row.style.display = 'none';
+        });
+        document.getElementById('rowCount').innerText = visible + ' student(s)';
+    }
+
+    // ── Sort Table ────────────────────────────────────────
+    let sortDir = {};
+    function sortTable(col) {
+        const tbody = document.querySelector('#resultsTable tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        sortDir[col] = !sortDir[col];
+        rows.sort((a, b) => {
+            const aT = a.querySelectorAll('td')[col]?.innerText.trim().toLowerCase() || '';
+            const bT = b.querySelectorAll('td')[col]?.innerText.trim().toLowerCase() || '';
+            return sortDir[col] ? aT.localeCompare(bT) : bT.localeCompare(aT);
+        });
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    // ── Delete with Confirm Modal ─────────────────────────
+    let pendingForm = null;
+    function confirmDelete(e, name, form) {
+        e.preventDefault();
+        pendingForm = form;
+        document.getElementById('modalStudentName').innerText = 'Student: ' + name;
+        document.getElementById('confirmModal').classList.add('show');
+        return false;
+    }
+    // Student Account Delete (reuses same modal)
+    function confirmStudentDelete(e, name, form) {
+        e.preventDefault();
+        pendingForm = form;
+        document.getElementById('modalStudentName').innerText =
+            '⚠️ This will permanently delete student: ' + name + ' and all their submissions!';
+        document.getElementById('confirmModal').classList.add('show');
+        return false;
+    }
+    function closeModal() {
+        document.getElementById('confirmModal').classList.remove('show');
+        pendingForm = null;
+    }
+    function submitDelete() {
+        const formToSubmit = pendingForm;
+        closeModal();
+        if (formToSubmit) {
+            formToSubmit.submit();
+        }
+    }
+    // Close modal on backdrop click
+    document.getElementById('confirmModal').addEventListener('click', function (e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ── Export CSV ────────────────────────────────────────
+    function exportCSV() {
+        const rows = document.querySelectorAll('#resultsTable tbody tr');
+        let csv = 'No,Student,Reg No,Topic,Status\n';
+        let i = 1;
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const c = row.querySelectorAll('td');
+            const b = row.querySelector('.badge');
+            csv += `${i++},"${c[1]?.innerText || ''}","${c[2]?.innerText || ''}","${c[3]?.innerText || ''}","${b?.innerText || ''}"\n`;
+        });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+        a.download = 'student_results_' + new Date().toISOString().slice(0, 10) + '.csv';
+        a.click();
+        showToast('📥 CSV downloaded!');
+    }
+
+    // ── Dark Mode ─────────────────────────────────────────
+    function toggleDark() {
+        document.body.classList.toggle('dark-mode');
+        const on = document.body.classList.contains('dark-mode');
+        document.getElementById('darkBtn').innerText = on ? '☀️ Light' : '🌙 Dark';
+        document.getElementById('tableHead').style.backgroundColor = on ? '#1e293b' : '#fff';
+        localStorage.setItem('darkMode', on ? 'on' : 'off');
+    }
+
+    // ── Toast ─────────────────────────────────────────────
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2500);
+    }
+
+    // ── Init ──────────────────────────────────────────────
+    window.onload = () => {
+        if (localStorage.getItem('darkMode') === 'on') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkBtn').innerText = '☀️ Light';
+            document.getElementById('tableHead').style.backgroundColor = '#1e293b';
+        }
+        if (localStorage.getItem('tutorDeadline'))
+            document.getElementById('deadlineInput').value = localStorage.getItem('tutorDeadline');
+        applyFilters();
+        updateStats();
+        updateCountdown();
+    };
+</script>
+
+{% endblock %}

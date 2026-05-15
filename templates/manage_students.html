@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Manage Students{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h4 class="fw-bold mb-1">Manage <span class="text-gradient">Students</span></h4>
+            <p class="text-muted small">Verify, ban, or delete student accounts</p>
+        </div>
+        <a href="{{ url_for('tutor.dashboard') }}" class="btn btn-outline-light border-opacity-25 rounded-3 btn-sm px-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back
+        </a>
+    </div>
+
+    {% if students %}
+    <div class="glass-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead class="bg-white bg-opacity-5">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small text-uppercase fw-bold">Student Name</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold">Register No</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold">Status</th>
+                        <th class="pe-4 py-3 text-muted small text-uppercase fw-bold text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr class="border-bottom border-white border-opacity-5">
+                        <td class="ps-4 py-4 fw-bold text-main">{{ student.username }}</td>
+                        <td class="py-4 text-muted">{{ student.register_number or 'N/A' }}</td>
+                        <td class="py-4">
+                            {% if student.is_banned %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2 rounded-pill">Banned</span>
+                            {% elif student.is_verified %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-3 py-2 rounded-pill">Verified</span>
+                            {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 px-3 py-2 rounded-pill">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                {% if not student.is_verified %}
+                                <form action="{{ url_for('tutor.verify_student', id=student.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3">Verify</button>
+                                </form>
+                                {% endif %}
+                                
+                                <form action="{{ url_for('tutor.ban_student', id=student.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-sm btn-outline-{{ 'secondary' if student.is_banned else 'warning' }} rounded-pill px-3">
+                                        {{ 'Unban' if student.is_banned else 'Ban' }}
+                                    </button>
+                                </form>
+
+                                <form action="{{ url_for('tutor.delete_student', id=student.id) }}" method="POST" onsubmit="return confirm('Delete this student account permanently?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger border-opacity-25 rounded-3">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="glass-card p-5 text-center">
+        <h5 class="fw-bold">No students registered yet</h5>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

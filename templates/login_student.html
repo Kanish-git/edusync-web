@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}EduSync - Student Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm border-top border-success border-5 rounded-4">
+            <div class="text-center mb-4">
+                <i class="fas fa-user-graduate fa-3x text-success"></i>
+                <h4 class="fw-bold mt-2">Student Login</h4>
+                <p class="text-muted small">Enter your details to view today's topic</p>
+            </div>
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Full Name</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your name" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Register Number</label>
+                    <input type="text" name="register_number" class="form-control" placeholder="Enter register number" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 py-2 rounded-pill">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <p class="small">Not registered? <a href="{{ url_for('auth.register_student') }}" class="text-decoration-none text-success">Create account</a></p>
+                <a href="/" class="text-muted small">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

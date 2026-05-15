@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}View Submissions{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h4 class="fw-bold mb-1">Student <span class="text-gradient">Submissions</span></h4>
+            <p class="text-muted small">Review and evaluate the latest student work</p>
+        </div>
+        <a href="{{ url_for('tutor.dashboard') }}" class="btn btn-outline-light border-opacity-25 rounded-3 btn-sm px-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back
+        </a>
+    </div>
+
+    {% if submissions %}
+    <div class="glass-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead class="bg-white bg-opacity-5">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small text-uppercase fw-bold">Student</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold">Topic</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold">Submitted At</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold">Status</th>
+                        <th class="pe-4 py-3 text-muted small text-uppercase fw-bold text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub, user, assign in submissions %}
+                    <tr class="border-bottom border-white border-opacity-5">
+                        <td class="ps-4 py-4">
+                            <div class="fw-bold text-main">{{ user.username }}</div>
+                            <div class="text-muted small">Reg: {{ user.register_number or 'N/A' }}</div>
+                        </td>
+                        <td class="py-4 fw-semibold text-main">{{ assign.topic }}</td>
+                        <td class="py-4 text-muted">{{ sub.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="py-4">
+                            {% if sub.status == 'Cleared' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-3 py-2 rounded-pill">Cleared</span>
+                            {% elif sub.status == 'Rejected' %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2 rounded-pill">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 px-3 py-2 rounded-pill">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-4 text-end">
+                            <button class="btn btn-premium btn-sm py-2 px-3" data-bs-toggle="modal" data-bs-target="#modal{{ sub.id }}">
+                                View & Evaluate
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modals (defined outside table to prevent layout issues) -->
+    {% for sub, user, assign in submissions %}
+    <div class="modal fade" id="modal{{ sub.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-card border-white border-opacity-20">
+                <div class="modal-header border-black border-opacity-10 p-4">
+                    <h5 class="modal-title fw-bold">Evaluating Submission: {{ user.username }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('tutor.update_submission', id=sub.id) }}" method="POST">
+                    <div class="modal-body p-4">
+                        <div class="row g-4">
+                            <!-- Student Work -->
+                            <div class="col-md-7 border-end border-black border-opacity-5">
+                                <div class="mb-4">
+                                    <div class="text-muted small text-uppercase fw-bold mb-1">Assignment Topic</div>
+                                    <div class="fw-bold text-main fs-5">{{ assign.topic }}</div>
+                                </div>
+                                <div class="mb-2 text-muted small text-uppercase fw-bold">Student Response</div>
+                                <div class="p-4 bg-black bg-opacity-5 rounded-4 mb-4" style="max-height: 300px; overflow-y: auto;">
+                                    <p class="mb-0 white-space-pre-wrap text-main">{{ sub.answer or 'No text response provided.' }}</p>
+                                </div>
+
+                                {% if sub.attachment_path %}
+                                <div class="mb-1 text-muted small text-uppercase fw-bold">Attached File</div>
+                                <a href="{{ url_for('uploaded_file', filename=sub.attachment_path) }}" class="btn btn-outline-primary rounded-pill w-100 py-3 text-start px-4 mb-3" target="_blank">
+                                    <div class="d-flex align-items-center">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                        <div>
+                                            <div class="fw-bold">Download Attachment</div>
+                                            <div class="small opacity-75 text-truncate" style="max-width: 250px;">{{ sub.attachment_path }}</div>
+                                        </div>
+                                    </div>
+                                </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Evaluation Form -->
+                            <div class="col-md-5">
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small fw-bold text-uppercase">Submission Status</label>
+                                    <select name="status" class="form-select border-radius-12 py-3 bg-white bg-opacity-50">
+                                        <option value="Pending" {% if sub.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Cleared" {% if sub.status == 'Cleared' %}selected{% endif %}>Cleared (Pass)</option>
+                                        <option value="Rejected" {% if sub.status == 'Rejected' %}selected{% endif %}>Rejected (Fail)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small fw-bold text-uppercase">Tutor Feedback</label>
+                                    <textarea name="feedback" class="form-control" rows="6" placeholder="Provide constructive feedback...">{{ sub.feedback or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-black border-opacity-10 p-4">
+                        <button type="button" class="btn btn-outline-secondary border-opacity-20 px-4 py-2" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn-premium px-5 py-2">Save Evaluation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div class="glass-card p-5 text-center">
+        <div class="mb-4 text-muted">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h5 class="fw-bold">No submissions yet</h5>
+        <p class="text-muted small">Once students start working, their responses will appear here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .white-space-pre-wrap { white-space: pre-wrap; }
+    .modal-content { background-color: var(--bg) !important; }
+    .border-radius-12 { border-radius: 12px; }
+</style>
+{% endblock %}

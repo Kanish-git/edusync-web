@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Performance Report{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h4 class="fw-bold mb-1">Performance <span class="text-gradient">Analytics</span></h4>
+            <p class="text-muted small">Tracking student progress and engagement metrics</p>
+        </div>
+        <a href="{{ url_for('tutor.dashboard') }}" class="btn btn-outline-light border-opacity-25 rounded-3 btn-sm px-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-12">
+            <div class="glass-card p-5">
+                <div class="d-flex align-items-center mb-5">
+                    <div class="p-3 bg-warning bg-opacity-10 rounded-4 me-3">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
+                    <h5 class="fw-bold mb-0">Engagement Leaderboard</h5>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0">
+                        <thead class="bg-white bg-opacity-5">
+                            <tr>
+                                <th class="ps-4 py-3 text-muted small text-uppercase fw-bold">Student</th>
+                                <th class="py-3 text-muted small text-uppercase fw-bold">ID / Reg No.</th>
+                                <th class="py-3 text-muted small text-uppercase fw-bold">Submissions</th>
+                                <th class="pe-4 py-3 text-muted small text-uppercase fw-bold">Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in report_data %}
+                            <tr class="border-bottom border-white border-opacity-5">
+                                <td class="ps-4 py-4 fw-bold">{{ data.name }}</td>
+                                <td class="py-4 text-muted">{{ data.reg_no }}</td>
+                                <td class="py-4">
+                                    <span class="fs-5 fw-bold text-gradient">{{ data.submissions }}</span>
+                                    <span class="text-muted small"> / total</span>
+                                </td>
+                                <td class="pe-4 py-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="progress flex-grow-1" style="height: 6px; background: rgba(255,255,255,0.05);">
+                                            <div class="progress-bar bg-gradient-success" role="progressbar" style="width: {{ [data.submissions * 20, 100]|min }}%" aria-valuenow="{{ data.submissions }}" aria-valuemin="0" aria-valuemax="10"></div>
+                                        </div>
+                                        <span class="small fw-bold">{{ [data.submissions * 20, 100]|min }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-success {
+        background: linear-gradient(90deg, var(--primary), var(--secondary)) !important;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}

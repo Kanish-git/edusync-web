@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4 card p-4 shadow-sm rounded-4 border-top border-primary border-5">
+            <h3 class="fw-bold text-center">Tutor Registration</h3>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill">Create Tutor Account</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

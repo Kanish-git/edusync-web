@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Manage Assignments{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h4 class="fw-bold mb-1">Manage <span class="text-gradient">Assignments</span></h4>
+            <p class="text-muted small">Overview of all active and past learning tasks</p>
+        </div>
+        <a href="{{ url_for('tutor.post_assignment') }}" class="btn-premium text-decoration-none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Assignment
+        </a>
+    </div>
+
+    {% if assignments %}
+    <div class="glass-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead class="bg-white bg-opacity-5">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small text-uppercase fw-bold">Topic</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold">Date</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold">Status</th>
+                        <th class="pe-4 py-3 text-muted small text-uppercase fw-bold text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr class="border-bottom border-white border-opacity-5">
+                        <td class="ps-4 py-4 fw-semibold">{{ assignment.topic }}</td>
+                        <td class="py-4 text-muted">{{ assignment.date }}</td>
+                        <td class="py-4">
+                            {% if assignment.is_active %}
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-3 py-2 rounded-pill">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2 rounded-pill">Stopped</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ url_for('tutor.edit_assignment', id=assignment.id) }}" class="btn btn-sm btn-outline-light border-opacity-25 rounded-3">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </a>
+                                
+                                <form action="{{ url_for('tutor.toggle_assignment', id=assignment.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-{{ 'warning' if assignment.is_active else 'success' }} border-opacity-25 rounded-3">
+                                        {% if assignment.is_active %}
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                                        {% else %}
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                        {% endif %}
+                                    </button>
+                                </form>
+
+                                <form action="{{ url_for('tutor.delete_assignment', id=assignment.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this assignment permanently?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger border-opacity-25 rounded-3">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="glass-card p-5 text-center">
+        <div class="mb-4 text-muted">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <h5 class="fw-bold">No assignments yet</h5>
+        <p class="text-muted small mb-4">Start by creating your first learning task for students.</p>
+        <a href="{{ url_for('tutor.post_assignment') }}" class="btn-premium text-decoration-none">Create Now</a>
+    </div>
+    {% endif %}
+    
+    <div class="text-center mt-4">
+        <a href="{{ url_for('tutor.dashboard') }}" class="text-muted small text-decoration-none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Return to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

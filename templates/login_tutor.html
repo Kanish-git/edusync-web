@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}EduSync - Tutor Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm border-top border-primary border-5 rounded-4">
+            <div class="text-center mb-4">
+                <i class="fas fa-chalkboard-teacher fa-3x text-primary"></i>
+                <h4 class="fw-bold mt-2">Tutor Login</h4>
+                <p class="text-muted small">Sign in to manage assignments</p>
+            </div>
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <p class="small">New tutor? <a href="{{ url_for('auth.register_tutor') }}" class="text-decoration-none">Create an account</a></p>
+                <a href="/" class="text-muted small">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

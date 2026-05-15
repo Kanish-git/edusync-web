@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Submit Assignment{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="glass-card p-5">
+                <div class="d-flex align-items-center mb-5">
+                    <div class="p-3 bg-primary bg-opacity-10 rounded-4 me-3">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">Submit <span class="text-gradient">Work</span></h3>
+                        <p class="text-muted small mb-0">Topic: {{ assignment.topic }}</p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-white bg-opacity-50 rounded-4 mb-5 border border-white">
+                    <h6 class="fw-bold text-muted small text-uppercase mb-2">Assignment Instructions</h6>
+                    <p class="mb-0 text-main">{{ assignment.description }}</p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Your Answer / Response</label>
+                        <textarea name="answer" class="form-control" rows="8" placeholder="Type your response here..."></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Upload File (Optional)</label>
+                        <input type="file" name="attachment" class="form-control">
+                        <div class="form-text text-muted small mt-2">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            You can upload a document (PDF, DOCX, etc.) as your submission.
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-5">
+                        <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-light border-opacity-25 flex-grow-1 py-3 rounded-4 text-muted fw-bold">Cancel</a>
+                        <button type="submit" class="btn-premium flex-grow-2 py-3 px-5">Submit Assignment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .flex-grow-2 { flex-grow: 2; }
+</style>
+{% endblock %}

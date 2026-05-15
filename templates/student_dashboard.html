@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* Dark mode */
+    body.dark-mode {
+        background-color: #0f172a !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .card {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .form-control {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    body.dark-mode .navbar {
+        background: rgba(15, 23, 42, 0.9) !important;
+    }
+
+    body.dark-mode .stat-blue {
+        background: #1e3a5f !important;
+    }
+
+    body.dark-mode .stat-green {
+        background: #14532d !important;
+    }
+
+    body.dark-mode .stat-orange {
+        background: #431407 !important;
+    }
+
+    body.dark-mode .progress-wrap {
+        background: #1e293b !important;
+    }
+
+    /* Task card animation */
+    .task-card {
+        border-radius: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .task-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .task-card.completed-card {
+        opacity: 0.6;
+        border-left-color: #22c55e !important;
+    }
+
+    /* Deadline countdown */
+    .deadline-badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .deadline-urgent {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .deadline-soon {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .deadline-ok {
+        background: #dcfce7;
+        color: #166534;
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+
+    <!-- Top bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">📚 Student Portal</h4>
+            <small class="text-muted">Complete your assignments on time!</small>
+        </div>
+        <button onclick="toggleDark()" id="darkBtn" class="btn btn-sm btn-outline-secondary fw-semibold"
+            style="border-radius:10px;">
+            🌙 Dark Mode
+        </button>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="row g-3 mb-4">
+        <div class="col-4">
+            <div class="card text-center p-3 shadow-sm border-0 stat-blue"
+                style="background:#eff6ff; border-radius:14px;">
+                <div style="font-size:1.8rem; font-weight:700; color:#1d4ed8;">{{ assignments | length }}</div>
+                <div style="font-size:0.8rem; color:#64748b; font-weight:600;">TOTAL TASKS</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card text-center p-3 shadow-sm border-0 stat-green"
+                style="background:#f0fdf4; border-radius:14px;">
+                <div style="font-size:1.8rem; font-weight:700; color:#16a34a;" id="completedCount">
+                    {{ assignments | selectattr('completed', 'equalto', true) | list | length if assignments else 0 }}
+                </div>
+                <div style="font-size:0.8rem; color:#64748b; font-weight:600;">COMPLETED</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card text-center p-3 shadow-sm border-0 stat-orange"
+                style="background:#fff7ed; border-radius:14px;">
+                <div style="font-size:1.8rem; font-weight:700; color:#ea580c;" id="pendingCount">
+                    {{ assignments | selectattr('completed', 'equalto', false) | list | length if assignments else
+                    assignments | length }}
+                </div>
+                <div style="font-size:0.8rem; color:#64748b; font-weight:600;">PENDING</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="card p-3 mb-4 shadow-sm border-0 progress-wrap" style="border-radius:16px;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-semibold" style="font-size:0.9rem;">📊 Your Completion Progress</span>
+            <span class="fw-bold text-success" id="progressLabel">0%</span>
+        </div>
+        <div class="progress" style="height:12px; border-radius:10px;">
+            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" id="progressBar"
+                role="progressbar" style="width:0%; border-radius:10px;"></div>
+        </div>
+        <div class="text-muted mt-1" style="font-size:0.78rem;" id="progressSub"></div>
+    </div>
+
+    <!-- Search bar -->
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search assignments..."
+            onkeyup="filterCards()">
+    </div>
+
+    <!-- Assignment Cards -->
+    <div id="taskList" class="row g-3">
+        {% for task in assignments %}
+        <div class="col-md-12 task-item">
+            <div
+                class="card p-4 shadow-sm border-start border-primary border-4 task-card {% if task.completed %}completed-card{% endif %}">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            {% if task.completed %}✅{% else %}📝{% endif %}
+                            {{ task.topic_name }}
+                        </h5>
+                        <p class="text-muted mb-2" style="font-size:0.9rem;">{{ task.task_description }}</p>
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-1">
+                        {% if task.completed %}
+                        <span class="badge bg-success">Completed</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                        {% if task.deadline %}
+                        <span class="deadline-badge" id="deadline-{{ task.id }}">⏰ {{ task.deadline }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-2 flex-wrap">
+                    {% if task.document_path %}
+                    <a href="{{ url_for('static', filename='uploads/' + task.document_path) }}"
+                        class="btn btn-sm btn-outline-primary" style="border-radius:8px;">
+                        📎 Download Doc
+                    </a>
+                    {% endif %}
+                    {% if not task.completed %}
+                    <form action="{{ url_for('auth.complete_task', task_id=task.id) }}" method="POST">
+                        <button type="submit" class="btn btn-sm btn-success fw-semibold" style="border-radius:8px;">
+                            ✔️ Mark as Completed
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="btn btn-sm btn-outline-success disabled" style="border-radius:8px;">
+                        🎉 Done!
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div style="font-size:3rem;">🎉</div>
+            <h5 class="fw-bold mt-2">No assignments yet!</h5>
+            <p class="text-muted">Your tutor hasn't posted anything today. Check back later.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script>
+    // ── Search / Filter ───────────────────────────────────
+    function filterCards() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('.task-item').forEach(item => {
+            item.style.display = item.innerText.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    // ── Progress Bar ──────────────────────────────────────
+    function updateProgress() {
+        const total = document.querySelectorAll('.task-item').length;
+        const done = document.querySelectorAll('.task-item .badge.bg-success').length;
+        const pending = total - done;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressLabel').innerText = pct + '%';
+        document.getElementById('progressSub').innerText = done + ' of ' + total + ' tasks completed';
+        document.getElementById('completedCount').innerText = done;
+        document.getElementById('pendingCount').innerText = pending;
+    }
+
+    // ── Dark Mode ─────────────────────────────────────────
+    function toggleDark() {
+        document.body.classList.toggle('dark-mode');
+        const btn = document.getElementById('darkBtn');
+        if (document.body.classList.contains('dark-mode')) {
+            btn.innerText = '☀️ Light Mode';
+            localStorage.setItem('darkMode', 'on');
+        } else {
+            btn.innerText = '🌙 Dark Mode';
+            localStorage.setItem('darkMode', 'off');
+        }
+    }
+
+    // ── Init ──────────────────────────────────────────────
+    window.onload = () => {
+        if (localStorage.getItem('darkMode') === 'on') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkBtn').innerText = '☀️ Light Mode';
+        }
+        updateProgress();
+    };
+</script>
+{% endblock %}

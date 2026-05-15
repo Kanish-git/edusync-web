@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Account Pending Verification{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card p-5 text-center">
+                <div class="mb-4 text-warning">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </div>
+                <h3 class="fw-bold mb-3">Verification <span class="text-gradient">Pending</span></h3>
+                <p class="text-muted mb-4">Your student account has been created successfully, but a tutor must verify your registration before you can access assignments.</p>
+                <div class="p-4 bg-white bg-opacity-50 rounded-4 border border-white mb-4">
+                    <p class="small text-muted mb-0">Please contact your tutor to speed up the verification process. You will be able to see your dashboard once they approve your account.</p>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="btn-premium px-5 text-decoration-none">Logout and Check Later</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
