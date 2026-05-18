@@ -2,12 +2,70 @@
 <html>
 
 <head>
-    <title>EduSync</title>
+
+    <title>EduSync Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            padding: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #334155;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background: #1e293b;
+        }
+
+        tr {
+            background: #111827;
+        }
+    </style>
+
 </head>
 
 <body>
 
-    <h1>EduSync Flask App Working 🚀</h1>
+    <h1>EduSync Student Dashboard 🚀</h1>
+
+    <table>
+
+        <tr>
+
+            <th>ID</th>
+            <th>Name</th>
+            <th>Register No</th>
+            <th>Status</th>
+
+        </tr>
+
+        {% for student in students %}
+
+        <tr>
+
+            <td>{{ student.id }}</td>
+            <td>{{ student.student_name }}</td>
+            <td>{{ student.register_number }}</td>
+            <td>{{ student.status }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
 
 </body>
 
