@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -36,6 +36,29 @@ def home():
         "index.html",
         students=students
     )
+
+
+# ADD STUDENT
+@app.route("/add", methods=["POST"])
+def add_student():
+
+    name = request.form["student_name"]
+
+    reg = request.form["register_number"]
+
+    status = request.form["status"]
+
+    new_student = Student(
+        student_name=name,
+        register_number=reg,
+        status=status
+    )
+
+    db.session.add(new_student)
+
+    db.session.commit()
+
+    return redirect("/")
 
 
 # CREATE DATABASE

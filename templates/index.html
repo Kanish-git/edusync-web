@@ -13,10 +13,37 @@
             padding: 40px;
         }
 
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 30px;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
 
         th,
@@ -40,6 +67,32 @@
 <body>
 
     <h1>EduSync Student Dashboard 🚀</h1>
+
+    <!-- ADD FORM -->
+
+    <form action="/add" method="POST">
+
+        <input type="text" name="student_name" placeholder="Student Name" required>
+
+        <input type="text" name="register_number" placeholder="Register Number" required>
+
+        <select name="status">
+
+            <option value="Cleared">Cleared</option>
+            <option value="Pending">Pending</option>
+            <option value="Failed">Failed</option>
+
+        </select>
+
+        <button type="submit">
+
+            Add Student
+
+        </button>
+
+    </form>
+
+    <!-- TABLE -->
 
     <table>
 
