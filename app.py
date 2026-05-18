@@ -1,32 +1,67 @@
 from flask import Flask, render_template
-from models import db
-from routes.auth_routes import auth_bp
+from flask_sqlalchemy import SQLAlchemy
 import os
+
+# ─────────────────────────────────────────────
+# APP SETUP
+# ─────────────────────────────────────────────
 
 app = Flask(__name__)
 
-# Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///edusync.db'
-app.config['SECRET_KEY'] = 'edusync_secure_key'
+# ─────────────────────────────────────────────
+# DATABASE
+# ─────────────────────────────────────────────
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    'sqlite:///' + os.path.join(basedir, 'database.db')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize Database
-db.init_app(app)
+db = SQLAlchemy(app)
 
-# Register the Authentication Blueprint
-app.register_blueprint(auth_bp)
+# ─────────────────────────────────────────────
+# SAMPLE MODEL
+# ─────────────────────────────────────────────
 
-@app.route('/')
+class Student(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    student_name = db.Column(db.String(100))
+
+    register_number = db.Column(db.String(50))
+
+    status = db.Column(db.String(50))
+
+
+# ─────────────────────────────────────────────
+# HOME ROUTE
+# ─────────────────────────────────────────────
+
+@app.route("/")
 def home():
-    """Renders the professional home page."""
-    return render_template('index.html')
 
-if __name__ == '__main__':
-    with app.app_context():
-        # Creates the database and tables if they don't exist
-        db.create_all()
-    
-    # host='0.0.0.0' allows access over your local Wi-Fi network
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    students = Student.query.all()
+
+    return render_template(
+        "index.html",
+        students=students
+    )
+
+
+# ─────────────────────────────────────────────
+# CREATE DATABASE
+# ─────────────────────────────────────────────
+
+with app.app_context():
+    db.create_all()
+
+
+# ─────────────────────────────────────────────
+# IMPORTANT FOR VERCEL
+# ─────────────────────────────────────────────
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
