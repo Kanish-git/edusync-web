@@ -1,70 +1,70 @@
 from flask import Flask, render_template, request, redirect
-from flask_sqlalchemy import SQLAlchemy
-import os
 
 app = Flask(__name__)
 
-# DATABASE
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-app.config["SQLALCHEMY_DATABASE_URI"] = \
-    "sqlite:///" + os.path.join(basedir, "database.db")
-
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-db = SQLAlchemy(app)
-
-# MODEL
-class Student(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    student_name = db.Column(db.String(100))
-
-    register_number = db.Column(db.String(50))
-
-    status = db.Column(db.String(50))
-
-
-# HOME
+# HOME PAGE
 @app.route("/")
 def home():
+    return render_template("index.html")
 
-    students = Student.query.all()
+# =========================
+# TUTOR LOGIN
+# =========================
+@app.route("/tutor-login", methods=["GET", "POST"])
+def tutor_login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == "admin" and password == "admin":
+            return redirect("/tutor-dashboard")
+        return "Invalid Tutor Login"
+    return render_template("login_tutor.html")
 
-    return render_template(
-        "index.html",
-        students=students
-    )
+# TUTOR DASHBOARD
+@app.route("/tutor-dashboard")
+def tutor_dashboard():
+    return render_template("tutor_dashboard.html")
 
+# REGISTER TUTOR
+@app.route("/register-tutor", methods=["GET", "POST"])
+def register_tutor():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        # TODO: Save to database
+        return redirect("/tutor-login")
+    return render_template("register_tutor.html")
 
-# ADD STUDENT
-@app.route("/add", methods=["POST"])
-def add_student():
+# =========================
+# STUDENT LOGIN
+# =========================
+@app.route("/student-login", methods=["GET", "POST"])
+def student_login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        register_number = request.form.get("register_number")
+        if username and register_number:
+            return redirect("/student-dashboard")
+        return "Invalid Student Login"
+    return render_template("login_student.html")
 
-    name = request.form["student_name"]
+# STUDENT DASHBOARD
+@app.route("/student-dashboard")
+def student_dashboard():
+    return render_template("student_dashboard.html")
 
-    reg = request.form["register_number"]
+# REGISTER STUDENT
+@app.route("/register-student", methods=["GET", "POST"])
+def register_student():
+    if request.method == "POST":
+        username = request.form.get("username")
+        register_number = request.form.get("register_number")
+        # TODO: Save to database
+        return redirect("/student-login")
+    return render_template("register_student.html")
 
-    status = request.form["status"]
-
-    new_student = Student(
-        student_name=name,
-        register_number=reg,
-        status=status
-    )
-
-    db.session.add(new_student)
-
-    db.session.commit()
-
-    return redirect("/")
-
-
-# CREATE DATABASE
-with app.app_context():
-    db.create_all()
-
-
+# =========================
+# RUN APP
+# =========================
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

@@ -1,64 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>EduSync Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduSync</title>
 
     <style>
-        body {
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            padding: 40px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
-        h1 {
+        body {
+            background: #f5f5f7;
+        }
+
+        nav {
+            background: white;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .logo {
+            color: #5b3df5;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .home {
+            font-weight: bold;
+            color: #444;
+        }
+
+        .container {
+            width: 100%;
+            text-align: center;
+            padding-top: 60px;
+        }
+
+        .container h1 {
+            font-size: 70px;
             margin-bottom: 20px;
         }
 
-        form {
+        .blue {
+            color: #2563eb;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: #555;
+            margin-bottom: 50px;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            width: 500px;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 40px;
+            margin-bottom: 25px;
+        }
+
+        .card p {
+            color: #555;
+            font-size: 20px;
             margin-bottom: 30px;
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 10px;
+            line-height: 1.5;
         }
 
-        input,
-        select {
-            padding: 10px;
-            margin: 10px;
-            border: none;
-            border-radius: 6px;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            background: #2563eb;
-            color: white;
-            cursor: pointer;
-        }
-
-        table {
+        .btn {
+            display: inline-block;
             width: 100%;
-            border-collapse: collapse;
+            padding: 18px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
-        th,
-        td {
-            border: 1px solid #334155;
-            padding: 12px;
+        .blue-btn {
+            background: #2563eb;
+        }
+
+        .green-btn {
+            background: #15803d;
+        }
+
+        .link {
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .blue-link {
+            color: #2563eb;
+        }
+
+        .green-link {
+            color: #15803d;
+        }
+
+        footer {
             text-align: center;
-        }
-
-        th {
-            background: #1e293b;
-        }
-
-        tr {
-            background: #111827;
+            margin-top: 100px;
+            color: #555;
+            font-size: 18px;
+            padding-bottom: 40px;
         }
     </style>
 
@@ -66,59 +134,103 @@
 
 <body>
 
-    <h1>EduSync Student Dashboard 🚀</h1>
+    <nav>
 
-    <!-- ADD FORM -->
+        <div class="logo">
 
-    <form action="/add" method="POST">
+            EDUSYNC
 
-        <input type="text" name="student_name" placeholder="Student Name" required>
+        </div>
 
-        <input type="text" name="register_number" placeholder="Register Number" required>
+        <div class="home">
 
-        <select name="status">
+            HOME
 
-            <option value="Cleared">Cleared</option>
-            <option value="Pending">Pending</option>
-            <option value="Failed">Failed</option>
+        </div>
 
-        </select>
+    </nav>
 
-        <button type="submit">
+    <div class="container">
 
-            Add Student
+        <h1>
 
-        </button>
+            Welcome to <span class="blue">EduSync</span>
 
-    </form>
+        </h1>
 
-    <!-- TABLE -->
+        <p class="subtitle">
 
-    <table>
+            A streamlined platform for daily assignments and real-time performance tracking.
 
-        <tr>
+        </p>
 
-            <th>ID</th>
-            <th>Name</th>
-            <th>Register No</th>
-            <th>Status</th>
+        <div class="cards">
 
-        </tr>
+            <!-- Tutor Card -->
 
-        {% for student in students %}
+            <div class="card">
 
-        <tr>
+                <h2>Tutor Portal</h2>
 
-            <td>{{ student.id }}</td>
-            <td>{{ student.student_name }}</td>
-            <td>{{ student.register_number }}</td>
-            <td>{{ student.status }}</td>
+                <p>
 
-        </tr>
+                    Upload daily topics, manage assignments, and monitor student progress through automated analytics.
 
-        {% endfor %}
+                </p>
 
-    </table>
+                <a href="/tutor-login" class="btn blue-btn">
+
+                    Tutor Login
+
+                </a>
+
+                <br>
+
+                <a href="#" class="link blue-link">
+
+                    Create Tutor Account
+
+                </a>
+
+            </div>
+
+            <!-- Student Card -->
+
+            <div class="card">
+
+                <h2>Student Portal</h2>
+
+                <p>
+
+                    Access your daily "Topic of the Day," complete your tasks, and view your performance history.
+
+                </p>
+
+                <a href="/student-login" class="btn green-btn">
+
+                    Student Login
+
+                </a>
+
+                <br>
+
+                <a href="#" class="link green-link">
+
+                    New Student? Register Here
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer>
+
+        POWERED BY ADVANCED IDEA MECHANICS © 2026
+
+    </footer>
 
 </body>
 
