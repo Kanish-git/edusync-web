@@ -45,35 +45,96 @@ class Notice(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 def ensure_db_schema(app):
-    """Ensure all tables and columns exist in SQLite database safely."""
+    """Ensure all tables and columns exist safely and default accounts are seeded."""
     with app.app_context():
-        db.create_all()
         try:
-            with db.engine.connect() as conn:
-                # Check assignment columns
-                assign_cols = [r[1] for r in conn.execute(text("PRAGMA table_info(assignment)")).fetchall()]
-                if 'category' not in assign_cols:
-                    conn.execute(text("ALTER TABLE assignment ADD COLUMN category VARCHAR(50) DEFAULT 'Computer Science'"))
-                if 'difficulty' not in assign_cols:
-                    conn.execute(text("ALTER TABLE assignment ADD COLUMN difficulty VARCHAR(20) DEFAULT 'Intermediate'"))
-                if 'max_marks' not in assign_cols:
-                    conn.execute(text("ALTER TABLE assignment ADD COLUMN max_marks INTEGER DEFAULT 100"))
-                if 'priority' not in assign_cols:
-                    conn.execute(text("ALTER TABLE assignment ADD COLUMN priority VARCHAR(20) DEFAULT 'Standard'"))
-
-                # Check submission columns
-                sub_cols = [r[1] for r in conn.execute(text("PRAGMA table_info(submission)")).fetchall()]
-                if 'score' not in sub_cols:
-                    conn.execute(text("ALTER TABLE submission ADD COLUMN score VARCHAR(20)"))
-                if 'feedback' not in sub_cols:
-                    conn.execute(text("ALTER TABLE submission ADD COLUMN feedback TEXT"))
-                if 'submission_text' not in sub_cols:
-                    conn.execute(text("ALTER TABLE submission ADD COLUMN submission_text TEXT"))
-                if 'submission_file' not in sub_cols:
-                    conn.execute(text("ALTER TABLE submission ADD COLUMN submission_file VARCHAR(200)"))
-                if 'student_notes' not in sub_cols:
-                    conn.execute(text("ALTER TABLE submission ADD COLUMN student_notes TEXT"))
-
-                conn.commit()
+            db.create_all()
         except Exception as e:
-            print("Schema migration note:", e)
+            print("[EduSync] create_all note:", e)
+
+        # Apply column migrations for SQLite if needed
+        try:
+            if 'sqlite' in db.engine.name:
+                with db.engine.connect() as conn:
+                    # Check assignment columns
+                    assign_cols = [r[1] for r in conn.execute(text("PRAGMA table_info(assignment)")).fetchall()]
+                    if 'category' not in assign_cols:
+                        conn.execute(text("ALTER TABLE assignment ADD COLUMN category VARCHAR(50) DEFAULT 'Computer Science'"))
+                    if 'difficulty' not in assign_cols:
+                        conn.execute(text("ALTER TABLE assignment ADD COLUMN difficulty VARCHAR(20) DEFAULT 'Intermediate'"))
+                    if 'max_marks' not in assign_cols:
+                        conn.execute(text("ALTER TABLE assignment ADD COLUMN max_marks INTEGER DEFAULT 100"))
+                    if 'priority' not in assign_cols:
+                        conn.execute(text("ALTER TABLE assignment ADD COLUMN priority VARCHAR(20) DEFAULT 'Standard'"))
+
+                    # Check submission columns
+                    sub_cols = [r[1] for r in conn.execute(text("PRAGMA table_info(submission)")).fetchall()]
+                    if 'score' not in sub_cols:
+                        conn.execute(text("ALTER TABLE submission ADD COLUMN score VARCHAR(20)"))
+                    if 'feedback' not in sub_cols:
+                        conn.execute(text("ALTER TABLE submission ADD COLUMN feedback TEXT"))
+                    if 'submission_text' not in sub_cols:
+                        conn.execute(text("ALTER TABLE submission ADD COLUMN submission_text TEXT"))
+                    if 'submission_file' not in sub_cols:
+                        conn.execute(text("ALTER TABLE submission ADD COLUMN submission_file VARCHAR(200)"))
+                    if 'student_notes' not in sub_cols:
+                        conn.execute(text("ALTER TABLE submission ADD COLUMN student_notes TEXT"))
+
+                    conn.commit()
+        except Exception as e:
+            print("[EduSync] Schema migration note:", e)
+
+        # Seed default accounts and sample data if not present
+        try:
+            from sqlalchemy import func
+            admin_user = User.query.filter(func.lower(User.username) == 'admin').first()
+            if not admin_user:
+                admin_user = User(
+                    username='admin',
+                    password='admin123',
+                    role='Tutor',
+                    is_verified=True,
+                    is_banned=False
+                )
+                db.session.add(admin_user)
+
+            test_student = User.query.filter(
+                (func.lower(User.register_number) == 'reg001') | 
+                (func.lower(User.username) == 'test student')
+            ).first()
+            if not test_student:
+                test_student = User(
+                    username='Test Student',
+                    register_number='REG001',
+                    role='Student',
+                    is_verified=True,
+                    is_banned=False
+                )
+                db.session.add(test_student)
+
+            # Sample assignment if empty
+            if Assignment.query.count() == 0:
+                sample_assign = Assignment(
+                    topic_name="System Architecture & Scalability",
+                    task_description="Analyze cloud deployment constraints including serverless environments, ephemeral storage, and database persistence strategies.",
+                    deadline="Tomorrow, 5:00 PM",
+                    category="Computer Science",
+                    difficulty="Intermediate",
+                    max_marks=100,
+                    priority="High"
+                )
+                db.session.add(sample_assign)
+
+            # Sample notice if empty
+            if Notice.query.count() == 0:
+                sample_notice = Notice(
+                    message="Welcome to EduSync Portal! The system has been optimized for high availability and cloud deployment.",
+                    level="info",
+                    posted_by="Administration"
+                )
+                db.session.add(sample_notice)
+
+            db.session.commit()
+        except Exception as seed_err:
+            print("[EduSync] Seeding error:", seed_err)
+            db.session.rollback()

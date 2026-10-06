@@ -7,10 +7,45 @@ from models import db, User, Assignment, Submission, Notice
 # Blueprint must be defined at the top
 auth_bp = Blueprint('auth', __name__)
 
-# Setup for document uploads
+# Setup for document uploads with serverless / read-only fallback
+def get_upload_folder():
+    """Retrieve the configured upload folder, falling back to /tmp/uploads if read-only."""
+    try:
+        from flask import current_app
+        folder = current_app.config.get('UPLOAD_FOLDER')
+        if folder:
+            try:
+                os.makedirs(folder, exist_ok=True)
+            except Exception:
+                pass
+            return folder
+    except Exception:
+        pass
+    
+    # Check if static/uploads is writable
+    static_uploads = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads')
+    try:
+        os.makedirs(static_uploads, exist_ok=True)
+        return static_uploads
+    except Exception:
+        # Fallback to serverless /tmp
+        tmp_uploads = '/tmp/uploads'
+        try:
+            os.makedirs(tmp_uploads, exist_ok=True)
+        except Exception:
+            pass
+        return tmp_uploads
+
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads')
-if not os.path.exists(UPLOAD_FOLDER):
+try:
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except Exception:
+    UPLOAD_FOLDER = '/tmp/uploads'
+    try:
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    except Exception:
+        pass
+
 
 # ==========================================
 # TUTOR PORTAL ROUTES
@@ -104,7 +139,11 @@ def tutor_dashboard():
         filename = None
         if file and file.filename != '':
             filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            try:
+                dest_dir = get_upload_folder()
+                file.save(os.path.join(dest_dir, filename))
+            except Exception as up_err:
+                print("[EduSync] Assignment upload save note:", up_err)
 
         if topic and desc:
             new_assignment = Assignment(
@@ -561,7 +600,11 @@ def complete_task(task_id):
     solution_filename = None
     if file and file.filename != '':
         solution_filename = secure_filename(f"{reg_no}_{assignment.id}_{file.filename}")
-        file.save(os.path.join(UPLOAD_FOLDER, solution_filename))
+        try:
+            dest_dir = get_upload_folder()
+            file.save(os.path.join(dest_dir, solution_filename))
+        except Exception as up_err:
+            print("[EduSync] Student upload save note:", up_err)
 
     existing_sub = Submission.query.filter(
         func.lower(Submission.register_number) == reg_no.lower(),
