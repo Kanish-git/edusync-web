@@ -1,20 +1,69 @@
 {% extends "base.html" %}
+{% block title %}EduSync — Tutor Registration{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-4 card p-4 shadow-sm rounded-4 border-top border-primary border-5">
-            <h3 class="fw-bold text-center">Tutor Registration</h3>
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required>
+        <div class="col-md-5 col-lg-4">
+            <div class="glass-card p-4 p-md-5">
+                <!-- Header Icon & Title -->
+                <div class="text-center mb-4">
+                    <div style="width: 64px; height: 64px; border-radius: 20px; background: rgba(79, 110, 247, 0.12); color: var(--tutor); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                            <line x1="17" y1="11" x2="23" y2="11"></line>
+                        </svg>
+                    </div>
+                    <span class="badge rounded-pill code-font mb-2" style="background: rgba(79, 110, 247, 0.12); color: var(--tutor); font-size: 0.72rem; letter-spacing: 1.5px;">NEW EDUCATOR</span>
+                    <h3 class="fw-bold mb-1">Create Tutor <span style="background: linear-gradient(90deg, var(--tutor), var(--student)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Account</span></h3>
+                    <p class="text-muted small">Register to start assigning tasks to students</p>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+
+                <!-- Registration Form -->
+                <form action="/register-tutor" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-semibold text-uppercase code-font">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-3 border-end-0">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </span>
+                            <input type="text" name="username" class="form-control rounded-end-3 border-start-0" placeholder="e.g. prof_alex" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-semibold text-uppercase code-font">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-3 border-end-0">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            </span>
+                            <input type="password" name="password" class="form-control rounded-end-3 border-start-0" placeholder="Create strong password" required autocomplete="new-password">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-premium w-100 py-3 mb-3">
+                        <span>Register Tutor</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </button>
+                </form>
+
+                <!-- Footer Links -->
+                <div class="text-center pt-2">
+                    <p class="text-muted small mb-2">Already registered? <a href="/tutor-login" class="fw-semibold text-decoration-none" style="color: var(--tutor);">Login here</a></p>
+                    <a href="/" class="text-muted small text-decoration-none d-inline-flex align-items-center gap-1" style="opacity: 0.7;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        <span>Back to Home</span>
+                    </a>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 rounded-pill">Create Tutor Account</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>

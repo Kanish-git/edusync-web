@@ -1,203 +1,381 @@
 {% extends "base.html" %}
+{% block title %}EduSync — Student Portal{% endblock %}
+
 {% block content %}
-
 <style>
-    /* Dark mode */
-    body.dark-mode {
-        background-color: #0f172a !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .card {
-        background-color: #1e293b !important;
-        border-color: #334155 !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .form-control {
-        background-color: #1e293b !important;
-        border-color: #334155 !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .text-muted {
-        color: #94a3b8 !important;
-    }
-
-    body.dark-mode .navbar {
-        background: rgba(15, 23, 42, 0.9) !important;
-    }
-
-    body.dark-mode .stat-blue {
-        background: #1e3a5f !important;
-    }
-
-    body.dark-mode .stat-green {
-        background: #14532d !important;
-    }
-
-    body.dark-mode .stat-orange {
-        background: #431407 !important;
-    }
-
-    body.dark-mode .progress-wrap {
-        background: #1e293b !important;
-    }
-
-    /* Task card animation */
-    .task-card {
-        border-radius: 16px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .task-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    .task-card.completed-card {
-        opacity: 0.6;
-        border-left-color: #22c55e !important;
-    }
-
-    /* Deadline countdown */
-    .deadline-badge {
-        font-size: 0.75rem;
-        padding: 4px 10px;
-        border-radius: 20px;
+    .student-tab-btn {
+        padding: 6px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-soft);
+        font-size: 0.82rem;
         font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
-
-    .deadline-urgent {
-        background: #fee2e2;
-        color: #b91c1c;
+    .student-tab-btn:hover {
+        color: var(--student);
+        border-color: var(--student);
     }
-
-    .deadline-soon {
-        background: #fef9c3;
-        color: #854d0e;
+    .student-tab-btn.active {
+        background: var(--student);
+        color: #fff;
+        border-color: var(--student);
     }
-
-    .deadline-ok {
-        background: #dcfce7;
-        color: #166534;
+    #submitModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    #submitModal.show { display: flex; }
+    .modal-box-student {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 92%;
+        box-shadow: var(--shadow-lg);
     }
 </style>
 
-<div class="container mt-4 mb-5">
+<!-- ================= STUDENT SUBMIT WORK MODAL ================= -->
+<div id="submitModal">
+    <div class="modal-box-student">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); color: var(--student); display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">Submit Assignment Work</h5>
+                    <small class="text-muted code-font" id="submitModalTopicTitle">Topic Name</small>
+                </div>
+            </div>
+            <button onclick="closeSubmitModal()" class="btn btn-sm btn-link text-muted p-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <form id="studentSubmitForm" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted code-font">SOLUTION CODE / TEXT (OPTIONAL)</label>
+                <textarea name="solution_text" id="solutionText" class="form-control form-control-sm code-font" rows="4" placeholder="Paste your code snippet, solution URL, or answer text..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted code-font">ATTACH SOLUTION FILE (PDF, ZIP, CODE, DOC)</label>
+                <input type="file" name="solution_file" class="form-control form-control-sm">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted code-font">NOTES / COMMENTS FOR EDUCATOR</label>
+                <input type="text" name="student_notes" class="form-control form-control-sm" placeholder="e.g. Implemented with O(log n) binary search">
+            </div>
+            <div class="d-flex gap-2 justify-content-end pt-2">
+                <button type="button" onclick="closeSubmitModal()" class="btn btn-outline-secondary btn-sm px-3" style="border-radius:8px;">Cancel</button>
+                <button type="submit" class="btn-premium btn-student-premium py-2 px-4" style="font-size:0.86rem;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Confirm &amp; Submit Work</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="container py-4 mb-5">
+
+    <!-- Active Broadcast Announcement from Tutor (If Any) -->
+    {% if active_notice %}
+    <div class="alert alert-dismissible fade show p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2"
+        style="background: rgba(16, 185, 129, 0.08); border: 1px solid var(--student); border-radius: 14px;">
+        <div class="d-flex align-items-center gap-2">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--student); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+            </div>
+            <div>
+                <span class="badge code-font me-2 text-uppercase" style="background: var(--student); color: #fff; font-size: 0.68rem;">CLASS ANNOUNCEMENT</span>
+                <span class="fw-semibold" style="font-size: 0.9rem;">{{ active_notice.message }}</span>
+                <span class="text-muted small code-font ms-2">• Posted by {{ active_notice.posted_by }}</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Top bar -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
-            <h4 class="fw-bold mb-0">📚 Student Portal</h4>
-            <small class="text-muted">Complete your assignments on time!</small>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill code-font" style="background: rgba(16, 185, 129, 0.12); color: var(--student); font-size: 0.72rem; letter-spacing: 1.5px;">STUDENT WORKSPACE</span>
+                <span class="text-muted small code-font">• Reg: {{ session.register_number or 'N/A' }}</span>
+            </div>
+            <h3 class="fw-bold mb-0">Hello, <span style="background: linear-gradient(90deg, var(--student), var(--tutor)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ session.username or 'Learner' }}</span></h3>
+            <p class="text-muted small mb-0">Complete your daily assignments and track your completion progress in real-time.</p>
         </div>
-        <button onclick="toggleDark()" id="darkBtn" class="btn btn-sm btn-outline-secondary fw-semibold"
-            style="border-radius:10px;">
-            🌙 Dark Mode
-        </button>
+        <div class="d-flex gap-2">
+            <a href="/" class="nav-link-btn" style="border: 1px solid var(--line);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Home</span>
+            </a>
+            <a href="/logout" class="nav-link-btn text-danger" style="border: 1px solid var(--line);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span>Logout</span>
+            </a>
+        </div>
     </div>
 
-    <!-- Stats Bar -->
+    <!-- Student Stats Bar -->
     <div class="row g-3 mb-4">
-        <div class="col-4">
-            <div class="card text-center p-3 shadow-sm border-0 stat-blue"
-                style="background:#eff6ff; border-radius:14px;">
-                <div style="font-size:1.8rem; font-weight:700; color:#1d4ed8;">{{ assignments | length }}</div>
-                <div style="font-size:0.8rem; color:#64748b; font-weight:600;">TOTAL TASKS</div>
+        <div class="col-md-4">
+            <div class="glass-card p-3 p-md-4 d-flex align-items-center gap-3">
+                <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(79, 110, 247, 0.12); color: var(--tutor); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <div class="code-font fw-bold" style="font-size: 1.8rem; color: var(--tutor); line-height: 1;">{{ assignments | length }}</div>
+                    <div class="text-muted small fw-semibold text-uppercase mt-1" style="font-size: 0.76rem; letter-spacing: 1px;">Total Tasks</div>
+                </div>
             </div>
         </div>
-        <div class="col-4">
-            <div class="card text-center p-3 shadow-sm border-0 stat-green"
-                style="background:#f0fdf4; border-radius:14px;">
-                <div style="font-size:1.8rem; font-weight:700; color:#16a34a;" id="completedCount">
-                    {{ assignments | selectattr('completed', 'equalto', true) | list | length if assignments else 0 }}
+        <div class="col-md-4">
+            <div class="glass-card p-3 p-md-4 d-flex align-items-center gap-3">
+                <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(16, 185, 129, 0.12); color: var(--student); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
                 </div>
-                <div style="font-size:0.8rem; color:#64748b; font-weight:600;">COMPLETED</div>
+                <div>
+                    <div class="code-font fw-bold" style="font-size: 1.8rem; color: var(--student); line-height: 1;" id="completedCount">
+                        {{ assignments | selectattr('completed', 'equalto', true) | list | length if assignments else 0 }}
+                    </div>
+                    <div class="text-muted small fw-semibold text-uppercase mt-1" style="font-size: 0.76rem; letter-spacing: 1px;">Completed</div>
+                </div>
             </div>
         </div>
-        <div class="col-4">
-            <div class="card text-center p-3 shadow-sm border-0 stat-orange"
-                style="background:#fff7ed; border-radius:14px;">
-                <div style="font-size:1.8rem; font-weight:700; color:#ea580c;" id="pendingCount">
-                    {{ assignments | selectattr('completed', 'equalto', false) | list | length if assignments else
-                    assignments | length }}
+        <div class="col-md-4">
+            <div class="glass-card p-3 p-md-4 d-flex align-items-center gap-3">
+                <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(245, 158, 11, 0.12); color: var(--amber); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
                 </div>
-                <div style="font-size:0.8rem; color:#64748b; font-weight:600;">PENDING</div>
+                <div>
+                    <div class="code-font fw-bold" style="font-size: 1.8rem; color: var(--amber); line-height: 1;" id="pendingCount">
+                        {{ assignments | selectattr('completed', 'equalto', false) | list | length if assignments else assignments | length }}
+                    </div>
+                    <div class="text-muted small fw-semibold text-uppercase mt-1" style="font-size: 0.76rem; letter-spacing: 1px;">Pending</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Progress Bar -->
-    <div class="card p-3 mb-4 shadow-sm border-0 progress-wrap" style="border-radius:16px;">
+    <!-- Student Achievement Badges Strip -->
+    <div class="glass-card p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); color: var(--amber); display: flex; align-items: center; justify-content: center;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <span class="small fw-semibold code-font text-muted">YOUR STATUS BADGES:</span>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <span class="badge rounded-pill code-font py-2 px-3 d-inline-flex align-items-center gap-1" style="background: rgba(16, 185, 129, 0.12); color: var(--student); font-size: 0.76rem;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                Active Enrolled
+            </span>
+            <span class="badge rounded-pill code-font py-2 px-3 d-inline-flex align-items-center gap-1" style="background: rgba(79, 110, 247, 0.12); color: var(--tutor); font-size: 0.76rem;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Fast Submitter
+            </span>
+            <span class="badge rounded-pill code-font py-2 px-3 d-inline-flex align-items-center gap-1" style="background: rgba(139, 92, 246, 0.12); color: var(--violet); font-size: 0.76rem;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Top Verified
+            </span>
+        </div>
+    </div>
+
+    <!-- Progress Card -->
+    <div class="glass-card p-4 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-semibold" style="font-size:0.9rem;">📊 Your Completion Progress</span>
-            <span class="fw-bold text-success" id="progressLabel">0%</span>
+            <div class="d-flex align-items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--student)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span class="fw-semibold" style="font-size: 0.92rem;">Your Completion Progress</span>
+            </div>
+            <span class="fw-bold code-font" style="color: var(--student); font-size: 1rem;" id="progressLabel">0%</span>
         </div>
-        <div class="progress" style="height:12px; border-radius:10px;">
-            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" id="progressBar"
-                role="progressbar" style="width:0%; border-radius:10px;"></div>
+        <div class="progress" style="height: 12px; border-radius: 10px; background: var(--surface-soft);">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar"
+                role="progressbar" style="width: 0%; border-radius: 10px; background: linear-gradient(90deg, var(--student), var(--student-2));"></div>
         </div>
-        <div class="text-muted mt-1" style="font-size:0.78rem;" id="progressSub"></div>
+        <div class="text-muted mt-2 code-font" style="font-size: 0.78rem;" id="progressSub">Loading statistics...</div>
     </div>
 
-    <!-- Search bar -->
-    <div class="mb-3">
-        <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search assignments..."
-            onkeyup="filterCards()">
+    <!-- Task Filter Tabs + Search bar -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="student-tab-btn active" onclick="filterByTab('all', this)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                <span>All Tasks</span>
+            </button>
+            <button class="student-tab-btn" onclick="filterByTab('pending', this)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Pending Action</span>
+            </button>
+            <button class="student-tab-btn" onclick="filterByTab('completed', this)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Completed &amp; Graded</span>
+            </button>
+        </div>
+        <div style="min-width: 260px;">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text rounded-start-2 border-end-0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
+                <input type="text" id="searchInput" class="form-control rounded-end-2 border-start-0 code-font" placeholder="Search tasks..." onkeyup="filterCards()">
+            </div>
+        </div>
     </div>
 
-    <!-- Assignment Cards -->
+    <!-- Assignments List -->
     <div id="taskList" class="row g-3">
         {% for task in assignments %}
-        <div class="col-md-12 task-item">
-            <div
-                class="card p-4 shadow-sm border-start border-primary border-4 task-card {% if task.completed %}completed-card{% endif %}">
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                    <div>
-                        <h5 class="fw-bold mb-1">
-                            {% if task.completed %}✅{% else %}📝{% endif %}
-                            {{ task.topic_name }}
-                        </h5>
-                        <p class="text-muted mb-2" style="font-size:0.9rem;">{{ task.task_description }}</p>
-                    </div>
-                    <div class="d-flex flex-column align-items-end gap-1">
-                        {% if task.completed %}
-                        <span class="badge bg-success">Completed</span>
-                        {% else %}
-                        <span class="badge bg-warning text-dark">Pending</span>
+        <div class="col-12 task-item" data-completed="{{ 'true' if task.completed else 'false' }}">
+            <div class="glass-card p-4 position-relative" style="border-left: 5px solid {% if task.completed %}var(--student){% else %}var(--tutor){% endif %};">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                    <div style="flex: 1;">
+                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                            {% if task.completed %}
+                            <span class="badge rounded-pill code-font" style="background: rgba(16, 185, 129, 0.12); color: var(--student); font-size: 0.72rem;">COMPLETED</span>
+                            {% else %}
+                            <span class="badge rounded-pill code-font" style="background: rgba(245, 158, 11, 0.12); color: var(--amber); font-size: 0.72rem;">PENDING SUBMISSION</span>
+                            {% endif %}
+                            
+                            <span class="badge code-font" style="background: var(--surface-soft); color: var(--ink-soft); font-size: 0.7rem;">{{ task.category }}</span>
+                            <span class="badge code-font" style="background: rgba(79, 110, 247, 0.08); color: var(--tutor); font-size: 0.7rem;">{{ task.difficulty }}</span>
+                            <span class="badge code-font" style="background: rgba(139, 92, 246, 0.08); color: var(--violet); font-size: 0.7rem;">{{ task.max_marks }} pts</span>
+
+                            {% if task.deadline %}
+                            <span class="code-font text-muted small ms-1">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                Due: {{ task.deadline }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <h5 class="fw-bold mb-1">{{ task.topic_name }}</h5>
+                        <p class="text-muted mb-3" style="font-size: 0.92rem; line-height: 1.6;">{{ task.task_description }}</p>
+
+                        <!-- Score and Tutor Feedback display if evaluated -->
+                        {% if task.score or task.feedback %}
+                        <div class="p-3 rounded-3 mb-3" style="background: var(--surface-soft); border-left: 3px solid var(--tutor);">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-primary code-font" style="font-size:0.72rem;">SCORE: {{ task.score or 'Recorded' }}</span>
+                                <span class="text-muted small fw-semibold">Educator Evaluation</span>
+                            </div>
+                            {% if task.feedback %}
+                            <p class="mb-0 small fst-italic text-muted">"{{ task.feedback }}"</p>
+                            {% endif %}
+                        </div>
                         {% endif %}
-                        {% if task.deadline %}
-                        <span class="deadline-badge" id="deadline-{{ task.id }}">⏰ {{ task.deadline }}</span>
+
+                        <!-- Submitted Student Work Preview (If present) -->
+                        {% if task.submission_file or task.submission_text or task.student_notes %}
+                        <div class="p-3 rounded-3 mb-3" style="background: rgba(16, 185, 129, 0.05); border: 1px dashed var(--student);">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-success code-font" style="font-size:0.7rem;">YOUR SUBMISSION</span>
+                                {% if task.student_notes %}
+                                <span class="small text-muted fst-italic">Note: {{ task.student_notes }}</span>
+                                {% endif %}
+                            </div>
+                            {% if task.submission_text %}
+                            <pre class="code-font p-2 rounded mb-2 small" style="background: var(--surface); border: 1px solid var(--line); max-height: 120px; overflow-y: auto;">{{ task.submission_text }}</pre>
+                            {% endif %}
+                            {% if task.submission_file %}
+                            <a href="/uploads/{{ task.submission_file }}" target="_blank" class="nav-link-btn" style="border: 1px solid var(--line); font-size: 0.78rem; display: inline-flex;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                                <span>Download Your Submitted File</span>
+                            </a>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
                 </div>
-                <div class="d-flex gap-2 mt-2 flex-wrap">
+
+                <div class="d-flex gap-2 flex-wrap align-items-center pt-2 border-top" style="border-color: var(--line) !important;">
                     {% if task.document_path %}
-                    <a href="{{ url_for('static', filename='uploads/' + task.document_path) }}"
-                        class="btn btn-sm btn-outline-primary" style="border-radius:8px;">
-                        📎 Download Doc
+                    <a href="/uploads/{{ task.document_path }}" target="_blank" class="nav-link-btn" style="border: 1px solid var(--line); font-size: 0.84rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                        </svg>
+                        <span>Starter Document</span>
                     </a>
                     {% endif %}
+
                     {% if not task.completed %}
-                    <form action="{{ url_for('auth.complete_task', task_id=task.id) }}" method="POST">
-                        <button type="submit" class="btn btn-sm btn-success fw-semibold" style="border-radius:8px;">
-                            ✔️ Mark as Completed
+                    <!-- Open Detailed Submission Modal -->
+                    <button type="button" onclick="openSubmitModal('{{ task.id }}', '{{ task.topic_name }}')" class="btn-premium btn-student-premium" style="padding: 7px 18px; font-size: 0.86rem;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                        <span>Submit Work &amp; Solution</span>
+                    </button>
+
+                    <!-- Quick 1-click Complete fallback form -->
+                    <form action="/complete-task/{{ task.id }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" style="border-radius:10px; padding: 7px 14px; font-size: 0.84rem;" title="1-Click Quick Complete">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Quick Complete</span>
                         </button>
                     </form>
                     {% else %}
-                    <span class="btn btn-sm btn-outline-success disabled" style="border-radius:8px;">
-                        🎉 Done!
+                    <span class="badge rounded-pill code-font py-2 px-3 d-inline-flex align-items-center gap-1" style="background: rgba(16, 185, 129, 0.12); color: var(--student); font-size: 0.8rem;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Cleared &amp; Submitted
                     </span>
+                    <!-- Re-submit button if student wants to update solution -->
+                    <button type="button" onclick="openSubmitModal('{{ task.id }}', '{{ task.topic_name }}')" class="btn btn-sm btn-outline-secondary" style="border-radius:8px; padding: 4px 10px; font-size: 0.74rem;">
+                        Update Solution
+                    </button>
                     {% endif %}
                 </div>
             </div>
         </div>
         {% else %}
         <div class="col-12 text-center py-5">
-            <div style="font-size:3rem;">🎉</div>
-            <h5 class="fw-bold mt-2">No assignments yet!</h5>
-            <p class="text-muted">Your tutor hasn't posted anything today. Check back later.</p>
+            <div class="glass-card p-5">
+                <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(79, 110, 247, 0.1); color: var(--tutor); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                </div>
+                <h4 class="fw-bold mb-2">No active assignments yet!</h4>
+                <p class="text-muted mb-0">Your educator hasn't assigned tasks yet. Check back soon for the topic of the day.</p>
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -205,47 +383,57 @@
 </div>
 
 <script>
-    // ── Search / Filter ───────────────────────────────────
+    function openSubmitModal(taskId, topicTitle) {
+        document.getElementById('studentSubmitForm').action = '/complete-task/' + taskId;
+        document.getElementById('submitModalTopicTitle').innerText = 'Task: ' + topicTitle;
+        document.getElementById('submitModal').classList.add('show');
+    }
+    function closeSubmitModal() {
+        document.getElementById('submitModal').classList.remove('show');
+    }
+
+    let activeStudentTab = 'all';
+    function filterByTab(tab, btn) {
+        activeStudentTab = tab;
+        document.querySelectorAll('.student-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterCards();
+    }
+
     function filterCards() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         document.querySelectorAll('.task-item').forEach(item => {
-            item.style.display = item.innerText.toLowerCase().includes(q) ? '' : 'none';
+            const textMatch = item.innerText.toLowerCase().includes(q);
+            const isCompleted = item.getAttribute('data-completed') === 'true';
+            let tabMatch = true;
+            if (activeStudentTab === 'pending') tabMatch = !isCompleted;
+            else if (activeStudentTab === 'completed') tabMatch = isCompleted;
+
+            item.style.display = (textMatch && tabMatch) ? '' : 'none';
         });
     }
 
-    // ── Progress Bar ──────────────────────────────────────
     function updateProgress() {
-        const total = document.querySelectorAll('.task-item').length;
-        const done = document.querySelectorAll('.task-item .badge.bg-success').length;
-        const pending = total - done;
-        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        const items = document.querySelectorAll('.task-item');
+        const total = items.length;
+        let completed = 0;
+        items.forEach(card => {
+            if (card.getAttribute('data-completed') === 'true') {
+                completed++;
+            }
+        });
+
+        const pending = total - completed;
+        const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
         document.getElementById('progressBar').style.width = pct + '%';
         document.getElementById('progressLabel').innerText = pct + '%';
-        document.getElementById('progressSub').innerText = done + ' of ' + total + ' tasks completed';
-        document.getElementById('completedCount').innerText = done;
+        document.getElementById('progressSub').innerText = completed + ' of ' + total + ' tasks completed (' + pct + '%)';
+        document.getElementById('completedCount').innerText = completed;
         document.getElementById('pendingCount').innerText = pending;
     }
 
-    // ── Dark Mode ─────────────────────────────────────────
-    function toggleDark() {
-        document.body.classList.toggle('dark-mode');
-        const btn = document.getElementById('darkBtn');
-        if (document.body.classList.contains('dark-mode')) {
-            btn.innerText = '☀️ Light Mode';
-            localStorage.setItem('darkMode', 'on');
-        } else {
-            btn.innerText = '🌙 Dark Mode';
-            localStorage.setItem('darkMode', 'off');
-        }
-    }
-
-    // ── Init ──────────────────────────────────────────────
-    window.onload = () => {
-        if (localStorage.getItem('darkMode') === 'on') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkBtn').innerText = '☀️ Light Mode';
-        }
+    window.onload = function() {
         updateProgress();
     };
 </script>

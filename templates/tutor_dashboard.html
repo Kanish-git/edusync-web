@@ -1,510 +1,961 @@
 {% extends "base.html" %}
+{% block title %}EduSync — Tutor Command Center{% endblock %}
+
 {% block content %}
-
 <style>
-    /* ── Dark Mode ─────────────────────────────────── */
-    body.dark-mode {
-        background-color: #0f172a !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .card {
-        background-color: #1e293b !important;
-        border-color: #334155 !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .form-control,
-    body.dark-mode .form-select {
-        background-color: #1e293b !important;
-        border-color: #334155 !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .text-muted {
-        color: #94a3b8 !important;
-    }
-
-    body.dark-mode .navbar {
-        background: rgba(15, 23, 42, 0.9) !important;
-    }
-
-    body.dark-mode .table {
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .sticky-top {
-        background-color: #1e293b !important;
-    }
-
-    body.dark-mode .list-group-item {
-        background-color: transparent !important;
-        border-color: #334155 !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .stat-card {
-        background: #1e293b !important;
-    }
-
-    body.dark-mode .history-card {
-        background: #1e293b !important;
-    }
-
-    body.dark-mode .leaderboard-card {
-        background: #1e293b !important;
-    }
-
-    body.dark-mode .progress-wrap {
-        background: #1e293b !important;
-    }
-
-    body.dark-mode .activity-card {
-        background: #1e293b !important;
-    }
-
-    body.dark-mode .tab-btn {
-        color: #94a3b8 !important;
-    }
-
-    body.dark-mode .tab-btn.active {
-        background: #334155 !important;
-        color: #e2e8f0 !important;
-    }
-
-    body.dark-mode .section-card {
-        background: #1e293b !important;
-    }
-
-    /* ── General ───────────────────────────────────── */
-    .section-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 1.25rem;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 1rem;
-    }
-
     .stat-card {
-        border-radius: 14px;
-        padding: 1rem;
-        text-align: center;
-        border: none;
+        border-radius: 18px;
+        padding: 20px 22px;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-
-    .stat-num {
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+    .stat-val {
+        font-family: var(--code-font);
         font-size: 2rem;
         font-weight: 700;
+        line-height: 1;
     }
-
-    .stat-lbl {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #64748b;
-        letter-spacing: 0.5px;
-    }
-
-    /* ── Tabs ──────────────────────────────────────── */
     .tab-row {
         display: flex;
         gap: 8px;
+        margin-bottom: 16px;
         flex-wrap: wrap;
-        margin-bottom: 1rem;
     }
-
     .tab-btn {
-        padding: 6px 16px;
-        border-radius: 20px;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
+        padding: 6px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink-soft);
         font-size: 0.82rem;
         font-weight: 600;
         cursor: pointer;
-        color: #475569;
-        transition: all 0.2s;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
-
+    .tab-btn:hover {
+        color: var(--tutor);
+        border-color: var(--tutor);
+    }
     .tab-btn.active {
-        background: #4f46e5;
+        background: var(--tutor);
         color: #fff;
-        border-color: #4f46e5;
+        border-color: var(--tutor);
     }
-
-    /* ── Activity Feed ─────────────────────────────── */
-    .activity-card {
-        background: #f8fafc;
-        border-radius: 16px;
-        padding: 1rem 1.25rem;
+    .activity-feed-box {
+        max-height: 240px;
+        overflow-y: auto;
     }
-
     .activity-item {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: 10px;
-        padding: 8px 0;
-        border-bottom: 1px solid #e2e8f0;
-        font-size: 0.85rem;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 0.86rem;
     }
-
     .activity-item:last-child {
         border-bottom: none;
     }
-
-    .activity-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-top: 5px;
-        flex-shrink: 0;
-    }
-
-    /* ── Countdown ─────────────────────────────────── */
-    .countdown-box {
-        font-size: 1.4rem;
+    .countdown-display {
+        font-family: var(--code-font);
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #4f46e5;
+        color: var(--tutor);
         letter-spacing: 2px;
     }
-
-    /* ── Toast ─────────────────────────────────────── */
-    #toast {
-        position: fixed;
-        bottom: 60px;
-        right: 20px;
-        background: #1e293b;
-        color: #fff;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        display: none;
-        z-index: 9999;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    .quick-chip {
+        font-size: 0.74rem;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: var(--surface-soft);
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+        cursor: pointer;
+        transition: 0.2s;
+        font-family: var(--code-font);
+        display: inline-block;
     }
-
-    /* ── Confirm Modal ─────────────────────────────── */
-    #confirmModal {
+    .quick-chip:hover {
+        border-color: var(--tutor);
+        color: var(--tutor);
+        background: rgba(79, 110, 247, 0.08);
+    }
+    .batch-bar {
+        display: none;
+        position: sticky;
+        top: 76px;
+        z-index: 100;
+        border-radius: 14px;
+        background: var(--surface);
+        border: 1px solid var(--tutor);
+        box-shadow: var(--shadow-lg);
+        padding: 12px 18px;
+        margin-bottom: 16px;
+        animation: fadeInDown 0.2s ease;
+    }
+    .batch-bar.show {
+        display: flex;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .view-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 14px;
+    }
+    .submission-card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 14px;
+        padding: 16px;
+        transition: 0.2s ease;
+    }
+    .submission-card:hover {
+        border-color: var(--tutor);
+        box-shadow: var(--shadow);
+    }
+    #confirmModal, #gradeModal {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        z-index: 9998;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 9999;
         align-items: center;
         justify-content: center;
+        backdrop-filter: blur(5px);
     }
-
-    #confirmModal.show {
-        display: flex;
-    }
-
+    #confirmModal.show, #gradeModal.show { display: flex; }
     .modal-box {
-        background: #fff;
-        border-radius: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
         padding: 2rem;
-        max-width: 360px;
+        max-width: 440px;
         width: 90%;
-        text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow-lg);
     }
-
-    body.dark-mode .modal-box {
-        background: #1e293b;
-        color: #e2e8f0;
-    }
-
-    /* ── Print ─────────────────────────────────────── */
     @media print {
-        .no-print {
-            display: none !important;
-        }
-
-        body {
-            background: white !important;
-        }
+        .no-print, .navbar-custom, .wave-footer, .footer-bar, .batch-bar { display: none !important; }
+        body { background: white !important; }
     }
 </style>
 
-<!-- Toast -->
-<div id="toast"></div>
-
-<!-- Confirm Delete Modal -->
+<!-- ================= CONFIRM ACTION MODAL ================= -->
 <div id="confirmModal">
-    <div class="modal-box">
-        <div style="font-size:2.5rem;">🗑️</div>
-        <h5 class="fw-bold mt-2 mb-1">Delete Entry?</h5>
-        <p class="text-muted mb-3" style="font-size:0.9rem;" id="modalStudentName"></p>
-        <p style="font-size:0.85rem; color:#ef4444;">This will permanently remove this student's submission.</p>
-        <div class="d-flex gap-2 justify-content-center mt-3">
-            <button onclick="closeModal()" class="btn btn-outline-secondary fw-semibold"
-                style="border-radius:10px; min-width:100px;">Cancel</button>
-            <button onclick="submitDelete()" class="btn btn-danger fw-semibold"
-                style="border-radius:10px; min-width:100px;">Yes, Delete</button>
+    <div class="modal-box text-center">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); color: #ef4444; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        </div>
+        <h5 class="fw-bold mb-1" id="modalTitle">Confirm Action</h5>
+        <p class="text-muted small mb-3" id="modalStudentName">Are you sure you want to proceed?</p>
+        <p class="small text-danger mb-4">This action cannot be undone.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <button onclick="closeModal()" class="btn btn-outline-secondary fw-semibold px-4" style="border-radius:10px;">Cancel</button>
+            <button onclick="submitAction()" class="btn btn-danger fw-semibold px-4" style="border-radius:10px;">Confirm</button>
         </div>
     </div>
 </div>
 
-<div class="container mt-4 mb-5">
+<!-- ================= GRADE & EVALUATION MODAL ================= -->
+<div id="gradeModal">
+    <div class="modal-box text-start">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(79, 110, 247, 0.12); color: var(--tutor); display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">Grade Submission</h5>
+                    <small class="text-muted code-font" id="gradeStudentName">Student</small>
+                </div>
+            </div>
+            <button onclick="closeGradeModal()" class="btn btn-sm btn-link text-muted p-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
 
-    <!-- ── Top Bar ───────────────────────────────── -->
+            <!-- Student Submitted Work Preview Section -->
+            <div id="studentWorkSection" class="p-3 rounded-3 mb-3" style="display:none; background:var(--surface-soft); border:1px solid var(--line);">
+                <div class="fw-semibold small mb-1" style="color:var(--tutor);">STUDENT SUBMITTED WORK:</div>
+                <div id="modalStudentNotes" class="small text-muted mb-2 fst-italic"></div>
+                <pre id="modalStudentCode" class="code-font p-2 rounded mb-2 small" style="display:none; background:var(--surface); border:1px solid var(--line); max-height:140px; overflow-y:auto; white-space:pre-wrap;"></pre>
+                <div id="modalStudentFileLink" style="display:none;"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted code-font">SUBMISSION STATUS</label>
+                <select name="status" id="gradeStatus" class="form-select form-select-sm">
+                    <option value="Cleared">Cleared (Approved)</option>
+                    <option value="pending">Pending (Needs Revision)</option>
+                    <option value="failed">Failed (Not Cleared)</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted code-font">SCORE / MARKS</label>
+                <input type="text" name="score" id="gradeScore" class="form-control form-control-sm code-font" placeholder="e.g. 95/100 or A+">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted code-font">EDUCATOR FEEDBACK &amp; NOTES</label>
+                <textarea name="feedback" id="gradeFeedback" class="form-control form-control-sm" rows="3" placeholder="Specific notes, strengths, and areas to improve..."></textarea>
+            </div>
+            <div class="d-flex gap-2 justify-content-end pt-2">
+                <button type="button" onclick="closeGradeModal()" class="btn btn-outline-secondary btn-sm px-3" style="border-radius:8px;">Cancel</button>
+                <button type="submit" class="btn-premium py-2 px-4" style="font-size:0.86rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Save Evaluation</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="container py-4 mb-5">
+
+    <!-- Active Class Broadcast Notice Banner (If Any) -->
+    {% if active_notice %}
+    <div class="alert alert-dismissible fade show p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2"
+        style="background: rgba(79, 110, 247, 0.08); border: 1px solid var(--tutor); border-radius: 14px;">
+        <div class="d-flex align-items-center gap-2">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--tutor); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+            </div>
+            <div>
+                <span class="badge code-font me-2 text-uppercase" style="background: var(--tutor); color: #fff; font-size: 0.68rem;">{{ active_notice.level }} BROADCAST</span>
+                <span class="fw-semibold" style="font-size: 0.9rem;">{{ active_notice.message }}</span>
+                <span class="text-muted small code-font ms-2">• {{ active_notice.created_at.strftime('%b %d, %H:%M') if active_notice.created_at else '' }}</span>
+            </div>
+        </div>
+        <form action="/delete-announcement/{{ active_notice.id }}" method="POST" class="m-0">
+            <button type="submit" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" style="border-radius: 8px; font-size: 0.76rem;" title="Dismiss Announcement">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <span>Dismiss</span>
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Top Command Center Bar -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 no-print">
         <div>
-            <h4 class="fw-bold mb-0">🎓 Tutor Dashboard</h4>
-            <small class="text-muted" id="liveClock"></small>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill code-font" style="background: rgba(79, 110, 247, 0.12); color: var(--tutor); font-size: 0.72rem; letter-spacing: 1.5px;">TUTOR COMMAND CENTER</span>
+                <span class="text-muted small code-font">• Educator ID: {{ session.username or 'admin' }}</span>
+            </div>
+            <h3 class="fw-bold mb-0">Educator <span style="background: linear-gradient(90deg, var(--tutor), var(--student)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Dashboard</span></h3>
+            <small class="text-muted code-font" id="liveClock">Loading clock...</small>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <button onclick="exportCSV()" class="btn btn-sm btn-outline-success fw-semibold"
-                style="border-radius:10px;">📤 Export CSV</button>
-            <button onclick="window.print()" class="btn btn-sm btn-outline-secondary fw-semibold"
-                style="border-radius:10px;">🖨️ Print</button>
-            <button onclick="toggleDark()" id="darkBtn" class="btn btn-sm btn-outline-secondary fw-semibold"
-                style="border-radius:10px;">🌙 Dark</button>
+            <button onclick="exportCSV()" class="nav-link-btn" style="border: 1px solid var(--line); background: var(--surface);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+            </button>
+            <button onclick="exportJSON()" class="nav-link-btn" style="border: 1px solid var(--line); background: var(--surface);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                <span>Export JSON</span>
+            </button>
+            <button onclick="window.print()" class="nav-link-btn" style="border: 1px solid var(--line); background: var(--surface);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                <span>Print</span>
+            </button>
         </div>
     </div>
 
-    <!-- ── Live Clock + Countdown ───────────────── -->
-    <div class="row g-3 mb-4">
+    <!-- Countdown & Deadline Bar -->
+    <div class="row g-3 mb-4 no-print">
         <div class="col-md-6">
-            <div class="section-card d-flex align-items-center gap-3">
-                <div style="font-size:2rem;">⏰</div>
+            <div class="glass-card p-3 p-md-4 d-flex align-items-center gap-3">
+                <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(79, 110, 247, 0.12); color: var(--tutor); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
                 <div>
-                    <div class="text-muted" style="font-size:0.78rem; font-weight:600;">DEADLINE COUNTDOWN</div>
-                    <div class="countdown-box" id="countdown">--:--:--</div>
-                    <div class="text-muted" style="font-size:0.75rem;" id="deadlineLabel">No deadline set</div>
+                    <div class="text-muted code-font" style="font-size:0.74rem; font-weight:600; letter-spacing:1px;">ACTIVE DEADLINE COUNTDOWN</div>
+                    <div class="countdown-display" id="countdown">--:--:--</div>
+                    <div class="text-muted small code-font" id="deadlineLabel">No deadline active</div>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="section-card">
-                <div class="text-muted mb-1" style="font-size:0.78rem; font-weight:600;">SET DEADLINE FOR TODAY</div>
+            <div class="glass-card p-3 p-md-4">
+                <div class="text-muted code-font mb-2" style="font-size:0.74rem; font-weight:600; letter-spacing:1px;">SET TARGET SUBMISSION DEADLINE</div>
                 <div class="d-flex gap-2">
-                    <input type="datetime-local" id="deadlineInput" class="form-control form-control-sm"
-                        style="border-radius:10px;">
-                    <button onclick="setDeadline()" class="btn btn-sm btn-primary fw-semibold no-print"
-                        style="border-radius:10px;">Set</button>
+                    <input type="datetime-local" id="deadlineInput" class="form-control form-control-sm code-font">
+                    <button onclick="setDeadline()" class="btn-premium py-2 px-3" style="font-size:0.86rem;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Set</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ── Stats Bar ─────────────────────────────── -->
+    <!-- Stats Bar -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="stat-card shadow-sm" style="background:#eff6ff;">
-                <div class="stat-num" style="color:#1d4ed8;" id="statTotal">{{ results | length }}</div>
-                <div class="stat-lbl">TOTAL</div>
+            <div class="glass-card stat-card" style="border-left: 4px solid var(--tutor);">
+                <div class="stat-val text-primary" id="statTotal">{{ results | length }}</div>
+                <div class="text-muted small code-font fw-semibold text-uppercase mt-1">Total Submissions</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="stat-card shadow-sm" style="background:#f0fdf4;">
-                <div class="stat-num" style="color:#16a34a;" id="statCleared">0</div>
-                <div class="stat-lbl">CLEARED</div>
+            <div class="glass-card stat-card" style="border-left: 4px solid var(--student);">
+                <div class="stat-val text-success" id="statCleared">0</div>
+                <div class="text-muted small code-font fw-semibold text-uppercase mt-1">Cleared</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="stat-card shadow-sm" style="background:#fff7ed;">
-                <div class="stat-num" style="color:#ea580c;" id="statPending">0</div>
-                <div class="stat-lbl">PENDING</div>
+            <div class="glass-card stat-card" style="border-left: 4px solid var(--amber);">
+                <div class="stat-val" style="color: var(--amber);" id="statPending">0</div>
+                <div class="text-muted small code-font fw-semibold text-uppercase mt-1">Pending</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="stat-card shadow-sm" style="background:#fdf4ff;">
-                <div class="stat-num" style="color:#9333ea;" id="statPct">0%</div>
-                <div class="stat-lbl">COMPLETION</div>
+            <div class="glass-card stat-card" style="border-left: 4px solid var(--violet);">
+                <div class="stat-val" style="color: var(--violet);" id="statPct">0%</div>
+                <div class="text-muted small code-font fw-semibold text-uppercase mt-1">Completion</div>
             </div>
         </div>
     </div>
 
-    <!-- ── Progress Bar ──────────────────────────── -->
-    <div class="section-card progress-wrap mb-4">
-        <div class="d-flex justify-content-between mb-2">
-            <span class="fw-semibold" style="font-size:0.9rem;">📊 Class Completion</span>
-            <span class="fw-bold text-primary" id="progressLabel">0%</span>
+    <!-- Class Progress Bar -->
+    <div class="glass-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--tutor)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span class="fw-semibold" style="font-size:0.92rem;">Class Completion Metric</span>
+            </div>
+            <span class="fw-bold code-font text-primary" id="progressLabel">0%</span>
         </div>
-        <div class="progress" style="height:14px; border-radius:10px;">
-            <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" id="progressBar"
-                role="progressbar" style="width:0%; border-radius:10px;"></div>
+        <div class="progress" style="height:12px; border-radius:10px; background:var(--surface-soft);">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar"
+                role="progressbar" style="width:0%; border-radius:10px; background:linear-gradient(90deg, var(--tutor), var(--student));"></div>
         </div>
-        <div class="text-muted mt-1" style="font-size:0.78rem;" id="progressSub"></div>
+        <div class="text-muted mt-2 code-font" style="font-size:0.78rem;" id="progressSub">Loading metrics...</div>
     </div>
 
-    <!-- ── Main Row ───────────────────────────────── -->
+    <!-- Main Grid -->
     <div class="row g-4">
 
-        <!-- LEFT ─────────────────────────────────── -->
-        <div class="col-md-6">
+        <!-- LEFT COLUMN: Publish Assignment + Quick Broadcast + Leaderboard + Stream -->
+        <div class="col-lg-5">
 
-            <!-- Post Topic -->
-            <div class="section-card border-top border-primary border-4">
-                <h5 class="fw-bold mb-3">📌 Post Today's Topic</h5>
+            <!-- Post Topic Card (With Extended Educator Options) -->
+            <div class="glass-card p-4 mb-4" style="border-top: 4px solid var(--tutor);">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tutor)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <h5 class="fw-bold mb-0">Publish Assignment</h5>
+                </div>
+
+                <!-- 6 Quick Topic Templates with 1-click full auto-fill -->
+                <div class="mb-3">
+                    <span class="text-muted small code-font d-block mb-1">QUICK TOPIC TEMPLATES</span>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <span class="quick-chip" onclick="applyTemplate('RESTful API Services', 'Web Development', 'Intermediate', 100, 'Standard', 'Develop robust REST endpoints with JWT authentication and custom error handling middleware.')">REST APIs</span>
+                        <span class="quick-chip" onclick="applyTemplate('Async Python Architecture', 'Python & AI', 'Advanced', 100, 'High Priority', 'Implement asyncio event loops, background tasks, and concurrency throttles.')">Async Python</span>
+                        <span class="quick-chip" onclick="applyTemplate('SQL Query Optimization', 'Data Science', 'Intermediate', 50, 'Standard', 'Analyze query execution plans and optimize B-tree indexes for fast lookups.')">SQL Tuning</span>
+                        <span class="quick-chip" onclick="applyTemplate('Binary Trees & Heaps', 'Computer Science', 'Advanced', 100, 'High Priority', 'Implement binary search tree rotations, heap priority queues, and analyze Big-O complexity.')">Algorithms</span>
+                        <span class="quick-chip" onclick="applyTemplate('Docker Microservices', 'DevOps', 'Intermediate', 50, 'Standard', 'Containerize Flask web service and Postgres database using multi-stage Dockerfile and Docker Compose.')">Docker Setup</span>
+                        <span class="quick-chip" onclick="applyTemplate('Zero Trust Auth & JWT', 'Cybersecurity', 'Intermediate', 50, 'Optional', 'Design cryptographic bearer token authentication flow with refresh mechanisms.')">JWT Security</span>
+                    </div>
+                </div>
+
                 <form method="POST" enctype="multipart/form-data">
-                    <div class="mb-2">
-                        <label class="form-label small fw-semibold text-muted">Topic Title</label>
-                        <input type="text" name="topic_name" class="form-control" placeholder="e.g. Intro to Python"
-                            required>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small fw-semibold text-muted">Task Instructions</label>
-                        <textarea name="task_description" class="form-control" placeholder="Describe the assignment..."
-                            rows="3" required></textarea>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small fw-semibold text-muted">⏰ Deadline</label>
-                        <input type="datetime-local" name="deadline" class="form-control">
-                    </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted">📎 Support Document</label>
+                        <label class="form-label small fw-semibold text-muted code-font">TOPIC TITLE</label>
+                        <input type="text" name="topic_name" id="postTopic" class="form-control" placeholder="e.g. Asynchronous Microservices" required>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-muted code-font">CATEGORY</label>
+                            <select name="category" id="postCategory" class="form-select form-select-sm">
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Web Development">Web Development</option>
+                                <option value="Python & AI">Python &amp; AI</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="System Design">System Design</option>
+                                <option value="Cybersecurity">Cybersecurity</option>
+                                <option value="DevOps">DevOps</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-muted code-font">DIFFICULTY</label>
+                            <select name="difficulty" id="postDifficulty" class="form-select form-select-sm">
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate" selected>Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-muted code-font">MAX MARKS</label>
+                            <select name="max_marks" id="postMarks" class="form-select form-select-sm code-font">
+                                <option value="100" selected>100 Marks</option>
+                                <option value="50">50 Marks</option>
+                                <option value="25">25 Marks</option>
+                                <option value="10">10 Marks</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-muted code-font">PRIORITY</label>
+                            <select name="priority" id="postPriority" class="form-select form-select-sm">
+                                <option value="Standard" selected>Standard</option>
+                                <option value="High Priority">High Priority</option>
+                                <option value="Optional">Optional / Bonus</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted code-font">TASK INSTRUCTIONS &amp; DELIVERABLES</label>
+                        <textarea name="task_description" id="postDesc" class="form-control" placeholder="Detailed instructions, requirements, and deliverables..." rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted code-font">SUBMISSION DEADLINE</label>
+                        <input type="datetime-local" name="deadline" id="postDeadline" class="form-control code-font">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-muted code-font">ATTACH REFERENCE MATERIAL</label>
                         <input type="file" name="document" class="form-control">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 fw-semibold no-print"
-                        style="border-radius:10px; padding:10px;">
-                        🚀 Post Assignment
+
+                    <button type="submit" class="btn-premium w-100 py-3">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                        <span>Publish Topic to Class</span>
                     </button>
                 </form>
             </div>
 
-            <!-- Leaderboard -->
-            <div class="section-card leaderboard-card" style="background:linear-gradient(135deg,#fdf4ff,#eff6ff);">
-                <h5 class="fw-bold mb-3">🏆 Top Performers</h5>
+            <!-- Classroom Announcement / Notice Broadcast Option -->
+            <div class="glass-card p-4 mb-4" style="border-top: 4px solid var(--violet);">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <h5 class="fw-bold mb-0">Class Notice Broadcast</h5>
+                </div>
+                <!-- Quick Announcement Templates -->
+                <div class="mb-3">
+                    <span class="text-muted small code-font d-block mb-1">QUICK ANNOUNCEMENT PRESETS</span>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <span class="quick-chip" onclick="document.getElementById('broadcastMsg').value = 'Reminder: Lab submissions deadline extended by 24 hours.'">Deadline +24h</span>
+                        <span class="quick-chip" onclick="document.getElementById('broadcastMsg').value = 'Assignment evaluations updated! Check scores and educator feedback in your portal.'">Scores Live</span>
+                        <span class="quick-chip" onclick="document.getElementById('broadcastMsg').value = 'Office hours active today between 4:00 PM and 5:00 PM on meeting link.'">Office Hours</span>
+                        <span class="quick-chip" onclick="document.getElementById('broadcastMsg').value = 'Review instructions and testing requirements before final code submission.'">Review Note</span>
+                    </div>
+                </div>
+
+                <form action="/post-announcement" method="POST">
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold text-muted code-font">ANNOUNCEMENT TEXT</label>
+                        <input type="text" name="message" id="broadcastMsg" class="form-control form-control-sm" placeholder="e.g. Lab assignment submissions due before Friday 5 PM!" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-7">
+                            <label class="form-label small fw-semibold text-muted code-font">NOTICE LEVEL</label>
+                            <select name="level" class="form-select form-select-sm">
+                                <option value="info">Info Notice</option>
+                                <option value="urgent">Urgent Alert</option>
+                                <option value="warning">Warning / Reminder</option>
+                                <option value="success">Success / Milestone</option>
+                            </select>
+                        </div>
+                        <div class="col-5 d-flex align-items-end">
+                            <button type="submit" class="btn-premium w-100 py-2" style="font-size:0.84rem; background: var(--violet);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                <span>Broadcast</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Quick Enroll Student Directly Card -->
+            <div class="glass-card p-4 mb-4" style="border-top: 4px solid var(--student);">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--student)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="17" y1="11" x2="23" y2="11"></line>
+                    </svg>
+                    <h5 class="fw-bold mb-0">Quick Enroll Student</h5>
+                </div>
+                <form action="/enroll-student-direct" method="POST">
+                    <div class="row g-2 mb-3">
+                        <div class="col-7">
+                            <label class="form-label small fw-semibold text-muted code-font">FULL NAME</label>
+                            <input type="text" name="student_name" class="form-control form-control-sm" placeholder="e.g. Alex Morgan" required>
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label small fw-semibold text-muted code-font">REG NO</label>
+                            <input type="text" name="register_number" class="form-control form-control-sm code-font" placeholder="e.g. REG099" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-premium btn-student-premium w-100 py-2" style="font-size:0.86rem;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                        <span>Enroll Directly</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Top Performers Leaderboard (With Crisp Vector SVGs - Zero Emojis) -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="7"/>
+                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                    </svg>
+                    <h5 class="fw-bold mb-0">Top Performers</h5>
+                </div>
                 <div id="leaderboard">
-                    <p class="text-muted small">No data yet.</p>
+                    <p class="text-muted small">No cleared submissions recorded yet.</p>
                 </div>
             </div>
 
-            <!-- Activity Feed -->
-            <div class="activity-card mb-3">
-                <h5 class="fw-bold mb-3">⚡ Live Activity Feed</h5>
-                <div id="activityFeed">
-                    <p class="text-muted small">Submissions will appear here.</p>
+            <!-- Live Activity Feed (SVG Status Indicators) -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--student)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    <h5 class="fw-bold mb-0">Live Submissions Stream</h5>
+                </div>
+                <div id="activityFeed" class="activity-feed-box">
+                    <p class="text-muted small">Submissions will show up here in real time.</p>
                 </div>
             </div>
 
         </div>
 
-        <!-- RIGHT ────────────────────────────────── -->
-        <div class="col-md-6">
-            <div class="section-card">
+        <!-- RIGHT COLUMN: Submissions Table + Batch Bar + Archives + Enrolled Students -->
+        <div class="col-lg-7">
+
+            <!-- Submissions Table Card -->
+            <div class="glass-card p-4 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h5 class="fw-bold mb-0">🎓 Student Results</h5>
-                    <span class="text-muted" style="font-size:0.78rem;" id="rowCount"></span>
+                    <div class="d-flex align-items-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tutor)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <h5 class="fw-bold mb-0">Student Submissions</h5>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- View Mode Toggle Buttons (SVG Icons) -->
+                        <div class="btn-group btn-group-sm no-print" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="btnTableView" onclick="setViewMode('table')" title="Table View">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="btnCardView" onclick="setViewMode('card')" title="Card View">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            </button>
+                        </div>
+                        <span class="badge rounded-pill code-font" style="background:rgba(79,110,247,0.12); color:var(--tutor);" id="rowCount">0 entries</span>
+                    </div>
                 </div>
 
-                <!-- Tab Filter -->
+                <!-- Sticky Batch Grading Toolbar (Reveals when rows are checked) -->
+                <div class="batch-bar justify-content-between align-items-center flex-wrap gap-2" id="batchActionBar">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary code-font" id="selectedCountBadge">0 Selected</span>
+                        <span class="small fw-semibold text-muted">Bulk Actions:</span>
+                    </div>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <button type="button" onclick="executeBatch('mark_cleared')" class="btn btn-sm btn-success d-inline-flex align-items-center gap-1" style="font-size:0.75rem; border-radius:8px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Mark Cleared</span>
+                        </button>
+                        <button type="button" onclick="executeBatch('mark_pending')" class="btn btn-sm btn-warning d-inline-flex align-items-center gap-1 text-dark" style="font-size:0.75rem; border-radius:8px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>Mark Pending</span>
+                        </button>
+                        <button type="button" onclick="executeBatch('mark_failed')" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1" style="font-size:0.75rem; border-radius:8px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                            <span>Mark Failed</span>
+                        </button>
+                        <button type="button" onclick="executeBatch('delete')" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" style="font-size:0.75rem; border-radius:8px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            <span>Delete</span>
+                        </button>
+                        <button type="button" onclick="clearSelection()" class="btn btn-sm btn-outline-secondary" style="font-size:0.75rem; border-radius:8px;">Deselect</button>
+                    </div>
+                </div>
+
+                <!-- Hidden form for submitting batch operations -->
+                <form id="batchActionForm" action="/batch-submissions-action" method="POST" style="display:none;">
+                    <input type="hidden" name="action" id="batchActionInput">
+                    <input type="hidden" name="selected_ids" id="batchSelectedIdsInput">
+                </form>
+
+                <!-- Tab Filters (No Emojis - All Vector SVG Icons) -->
                 <div class="tab-row no-print">
-                    <button class="tab-btn active" onclick="tabFilter('all', this)">All</button>
-                    <button class="tab-btn" onclick="tabFilter('cleared', this)">✅ Cleared</button>
-                    <button class="tab-btn" onclick="tabFilter('pending', this)">⏳ Pending</button>
-                    <button class="tab-btn" onclick="tabFilter('failed', this)">❌ Failed</button>
+                    <button class="tab-btn active" onclick="tabFilter('all', this)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        <span>All</span>
+                    </button>
+                    <button class="tab-btn" onclick="tabFilter('cleared', this)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Cleared</span>
+                    </button>
+                    <button class="tab-btn" onclick="tabFilter('pending', this)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Pending</span>
+                    </button>
+                    <button class="tab-btn" onclick="tabFilter('failed', this)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <span>Failed</span>
+                    </button>
                 </div>
 
-                <!-- Search -->
-                <div class="mb-3 no-print">
-                    <input type="text" id="searchInput" class="form-control form-control-sm"
-                        placeholder="🔍 Search name or reg no..." onkeyup="applyFilters()">
+                <!-- Filter by Topic Dropdown + Real-Time Search Row -->
+                <div class="row g-2 mb-3 no-print">
+                    <div class="col-md-5">
+                        <select id="topicFilter" class="form-select form-select-sm code-font" onchange="applyFilters()">
+                            <option value="">All Topics (Filter)</option>
+                            {% for top in all_topics %}
+                            <option value="{{ top }}">{{ top }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text rounded-start-2 border-end-0">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </span>
+                            <input type="text" id="searchInput" class="form-control rounded-end-2 border-start-0 code-font"
+                                placeholder="Search by name, reg, or topic..." onkeyup="applyFilters()">
+                            <button class="btn btn-outline-secondary" type="button" onclick="resetFilters()" title="Reset Filters">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Scrollable Table -->
-                <div style="max-height:420px; overflow-y:auto; border-radius:8px;">
+                <!-- VIEW MODE 1: Scrollable Submissions Table -->
+                <div id="tableViewContainer" style="max-height: 460px; overflow-y: auto; border-radius: 12px; border: 1px solid var(--line);">
                     <table class="table table-hover mb-0" id="resultsTable">
-                        <thead class="sticky-top" style="background:#fff;" id="tableHead">
+                        <thead class="sticky-top" style="background: var(--surface-soft);" id="tableHead">
                             <tr>
-                                <th style="font-size:0.8rem; cursor:pointer;" onclick="sortTable(0)">#</th>
-                                <th style="font-size:0.8rem; cursor:pointer;" onclick="sortTable(1)">Student ↕</th>
-                                <th style="font-size:0.8rem; cursor:pointer;" onclick="sortTable(2)">Reg No ↕</th>
-                                <th style="font-size:0.8rem;">Topic</th>
-                                <th style="font-size:0.8rem;">Status</th>
-                                <th style="font-size:0.8rem;" class="no-print">Action</th>
+                                <th style="width: 36px;" class="no-print">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                                </th>
+                                <th style="font-size:0.78rem; cursor:pointer;" onclick="sortTable(1)">#</th>
+                                <th style="font-size:0.78rem; cursor:pointer;" onclick="sortTable(2)">Student</th>
+                                <th style="font-size:0.78rem; cursor:pointer;" onclick="sortTable(3)">Reg No</th>
+                                <th style="font-size:0.78rem;">Topic</th>
+                                <th style="font-size:0.78rem;">Score</th>
+                                <th style="font-size:0.78rem;">Status</th>
+                                <th style="font-size:0.78rem;" class="no-print text-end pe-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for res in results %}
-                            <tr id="row-{{ res.id }}">
-                                <td style="font-size:0.83rem; color:#94a3b8;">{{ loop.index }}</td>
-                                <td style="font-size:0.83rem;">{{ res.student_name }}</td>
-                                <td style="font-size:0.83rem;">{{ res.register_number }}</td>
-                                <td style="font-size:0.83rem;">{{ res.topic_name }}</td>
-                                <td>
-                                    {% if res.status == 'pending' %}
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                    {% elif res.status == 'failed' %}
-                                    <span class="badge bg-danger">Failed</span>
+                            <tr id="row-{{ res.id }}" data-id="{{ res.id }}">
+                                <td class="no-print">
+                                    {% if res.id and not (res.id|string).startswith('p-') %}
+                                    <input type="checkbox" class="row-checkbox" value="{{ res.id }}" onchange="handleRowSelect()">
                                     {% else %}
-                                    <span class="badge bg-success">Cleared</span>
+                                    <span class="text-muted" style="font-size:0.75rem;">—</span>
                                     {% endif %}
                                 </td>
-                                <td class="no-print">
-                                    <form action="{{ url_for('auth.delete_student_by_name') }}" method="POST">
-                                        <input type="hidden" name="student_name" value="{{ res.student_name }}">
-                                        <input type="hidden" name="register_number" value="{{ res.register_number }}">
-                                        <button type="submit" class="btn btn-sm btn-danger fw-bold"
-                                            style="border-radius:8px; padding:2px 10px; font-size:0.78rem;">
-                                            🗑️ Delete
+                                <td style="font-size:0.8rem; color:var(--ink-soft); font-family:var(--code-font);">{{ loop.index }}</td>
+                                <td style="font-size:0.85rem; font-weight:600;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width:24px; height:24px; border-radius:50%; background:var(--surface-soft); display:flex; align-items:center; justify-content:center; color:var(--tutor);">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        </div>
+                                        <span class="student-name-link" style="cursor:pointer;" onclick="filterByStudent('{{ res.student_name }}')" title="Click to filter by {{ res.student_name }}">{{ res.student_name }}</span>
+                                    </div>
+                                </td>
+                                <td style="font-size:0.8rem; font-family:var(--code-font);">{{ res.register_number }}</td>
+                                <td style="font-size:0.84rem;">
+                                    <div>{{ res.topic_name }}</div>
+                                    {% if res.feedback %}
+                                    <div class="text-muted small fst-italic" style="font-size:0.72rem;">"{{ res.feedback }}"</div>
+                                    {% endif %}
+                                </td>
+                                <td style="font-size:0.8rem; font-family:var(--code-font);">
+                                    {% if res.score %}
+                                    <span class="badge bg-secondary">{{ res.score }}</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if res.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark code-font d-inline-flex align-items-center gap-1" style="font-size:0.72rem;">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        Pending
+                                    </span>
+                                    {% elif res.status == 'failed' %}
+                                    <span class="badge bg-danger code-font d-inline-flex align-items-center gap-1" style="font-size:0.72rem;">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                        Failed
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-success code-font d-inline-flex align-items-center gap-1" style="font-size:0.72rem;">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                        Cleared
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="no-print text-end pe-3">
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <!-- Grade & Evaluation Modal Button -->
+                                        {% if res.id and not (res.id|string).startswith('p-') %}
+                                        <button class="btn btn-sm btn-outline-primary" type="button" 
+                                            onclick="openGradeModal('{{ res.id }}', '{{ res.student_name }}', '{{ res.status }}', '{{ res.score or '' }}', '{{ res.feedback or '' }}', '{{ res.submission_text|replace('\n', ' ')|replace('\'', '\\\'') if res.submission_text else '' }}', '{{ res.submission_file or '' }}', '{{ res.student_notes or '' }}')" 
+                                            style="padding: 2px 7px; font-size: 0.74rem;" title="Evaluate &amp; Score">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                            <span>Grade</span>
+                                            {% if res.submission_file or res.submission_text %}
+                                            <span class="badge bg-success ms-1" style="font-size:0.6rem; padding:1px 3px;">Work</span>
+                                            {% endif %}
                                         </button>
-                                    </form>
+
+                                        <!-- Quick Status Dropdown -->
+                                        <div class="dropdown d-inline">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" style="padding: 2px 6px; font-size: 0.72rem;" title="Quick Status">
+                                                Status
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.8rem;">
+                                                <li>
+                                                    <form action="/update-submission-status/{{ res.id }}" method="POST">
+                                                        <input type="hidden" name="status" value="Cleared">
+                                                        <button class="dropdown-item d-flex align-items-center gap-2 text-success" type="submit">
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
+                                                            Mark Cleared
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form action="/update-submission-status/{{ res.id }}" method="POST">
+                                                        <input type="hidden" name="status" value="pending">
+                                                        <button class="dropdown-item d-flex align-items-center gap-2 text-warning" type="submit">
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                                            Mark Pending
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form action="/update-submission-status/{{ res.id }}" method="POST">
+                                                        <input type="hidden" name="status" value="failed">
+                                                        <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="submit">
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                                            Mark Failed
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Delete Result Button (Crisp SVG icon) -->
+                                        <form action="/delete-student-by-name" method="POST" class="d-inline" onsubmit="return confirmActionModal(event, 'Delete Submission', 'Remove submission record for {{ res.student_name }}?', this)">
+                                            <input type="hidden" name="student_name" value="{{ res.student_name }}">
+                                            <input type="hidden" name="register_number" value="{{ res.register_number }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius:6px; padding:3px 8px; font-size:0.75rem;" title="Delete Record">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+
+                <!-- VIEW MODE 2: Card Grid View (Alternative Layout Option) -->
+                <div id="cardViewContainer" style="display:none; max-height: 460px; overflow-y: auto; padding: 4px;">
+                    <div class="view-card-grid" id="cardGrid">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Assignment History -->
-            <div class="section-card history-card" style="background:#f8fafc;">
-                <h5 class="fw-bold mb-3">📅 Assignment History</h5>
+            <!-- Assignment History & Archives (With SVG Delete, Download & Filter Options) -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <h5 class="fw-bold mb-0">Assignment Archives</h5>
+                    </div>
+                    <span class="badge rounded-pill code-font" style="background: rgba(139, 92, 246, 0.12); color: var(--violet);">
+                        {{ history | length }} published
+                    </span>
+                </div>
                 {% if history %}
-                <div style="max-height:200px; overflow-y:auto;">
+                <div style="max-height: 240px; overflow-y: auto;">
                     <ul class="list-group list-group-flush">
                         {% for h in history %}
-                        <li class="list-group-item bg-transparent px-0 py-2">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
+                        <li class="list-group-item bg-transparent px-0 py-2 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2" style="border-color: var(--line) !important;">
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
                                     <span class="fw-semibold" style="font-size:0.88rem;">{{ h.topic_name }}</span>
-                                    <div class="text-muted" style="font-size:0.74rem;">{{ h.posted_at }}</div>
+                                    <span class="badge code-font" style="background: var(--surface-soft); color: var(--ink-soft); font-size: 0.68rem;">{{ h.category }}</span>
+                                    <span class="badge code-font" style="background: rgba(79, 110, 247, 0.08); color: var(--tutor); font-size: 0.68rem;">{{ h.difficulty }}</span>
                                 </div>
-                                <span class="badge bg-primary bg-opacity-10 text-primary" style="font-size:0.73rem;">
-                                    {{ h.submission_count }} submissions
-                                </span>
+                                <div class="text-muted small code-font" style="font-size:0.74rem;">
+                                    Published: {{ h.posted_at }}
+                                    {% if h.deadline %} · Due: {{ h.deadline }}{% endif %}
+                                    · Max: {{ h.max_marks }} pts
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <!-- Filter Table to this topic -->
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterByTopicExact('{{ h.topic_name }}')" style="padding:2px 7px; font-size:0.74rem;" title="Filter submissions to this assignment">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                    <span>Filter</span>
+                                </button>
+
+                                <!-- Clone/Copy Assignment to form -->
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="applyTemplate('{{ h.topic_name }}', '{{ h.category }}', '{{ h.difficulty }}', '{{ h.max_marks }}', '{{ h.priority }}', '{{ h.task_description|replace('\n', ' ')|replace('\'', '\\\'') }}')" style="padding:2px 7px; font-size:0.74rem;" title="Clone / Load into Publish Form">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    <span>Clone</span>
+                                </button>
+
+                                {% if h.document_path %}
+                                <a href="/uploads/{{ h.document_path }}" target="_blank" class="btn btn-sm btn-outline-primary" style="padding:2px 7px; font-size:0.74rem;" title="Download Attached File">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                                </a>
+                                {% endif %}
+
+                                <!-- Delete Assignment -->
+                                <form action="/delete-assignment/{{ h.id }}" method="POST" class="d-inline" onsubmit="return confirmActionModal(event, 'Delete Assignment', 'Remove assignment {{ h.topic_name }} and its submissions?', this)">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="padding:2px 7px; font-size:0.74rem;" title="Delete Assignment">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </form>
                             </div>
                         </li>
                         {% endfor %}
                     </ul>
                 </div>
                 {% else %}
-                <p class="text-muted small mb-0">No past assignments yet.</p>
+                <p class="text-muted small mb-0">No past assignments published yet.</p>
                 {% endif %}
             </div>
 
-            <!-- ── Registered Students ──────────────────── -->
-            <div class="section-card" style="background:#fff;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0">👥 Registered Students</h5>
-                    <span class="badge bg-primary bg-opacity-10 text-primary">{{ students | length }} total</span>
+            <!-- Enrolled Students (With Search Filter & Verification Badges - No Emojis) -->
+            <div class="glass-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--student)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        <h5 class="fw-bold mb-0">Enrolled Students</h5>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-pill code-font" style="background: rgba(16, 185, 129, 0.12); color: var(--student);" id="studentCountBadge">
+                            {{ students | length }} enrolled
+                        </span>
+                        <form action="/batch-verify-students" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1" style="border-radius:8px; padding:2px 8px; font-size:0.75rem;" title="Verify All Students">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                <span>Verify All</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Live Search Box inside Enrolled Students -->
+                <div class="mb-3 no-print">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text rounded-start-2 border-end-0">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </span>
+                        <input type="text" id="studentSearchInput" class="form-control rounded-end-2 border-start-0 code-font" placeholder="Filter enrolled students..." onkeyup="filterEnrolledStudents()">
+                    </div>
+                </div>
+
                 {% if students %}
-                <div style="max-height:300px; overflow-y:auto; border-radius:8px;">
+                <div style="max-height: 280px; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px;">
                     <table class="table table-hover mb-0" id="studentsTable">
-                        <thead class="sticky-top" style="background:#fff;">
+                        <thead class="sticky-top" style="background: var(--surface-soft);">
                             <tr>
-                                <th style="font-size:0.8rem;">#</th>
-                                <th style="font-size:0.8rem;">Name</th>
-                                <th style="font-size:0.8rem;">Reg No</th>
-                                <th style="font-size:0.8rem;" class="no-print">Action</th>
+                                <th style="font-size:0.78rem;">#</th>
+                                <th style="font-size:0.78rem;">Name</th>
+                                <th style="font-size:0.78rem;">Reg No</th>
+                                <th style="font-size:0.78rem;" class="no-print text-end pe-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for student in students %}
-                            <tr id="srow-{{ student.id }}">
-                                <td style="font-size:0.83rem; color:#94a3b8;">{{ loop.index }}</td>
-                                <td style="font-size:0.83rem; font-weight:600;">{{ student.username }}</td>
-                                <td style="font-size:0.83rem;">{{ student.register_number or '—' }}</td>
-                                <td class="no-print">
-                                    <form action="{{ url_for('auth.delete_student', student_id=student.id) }}"
-                                        method="POST"
-                                        onsubmit="return confirmStudentDelete(event, '{{ student.username }}', this)">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold"
-                                            style="border-radius:8px; padding:2px 12px; font-size:0.78rem;">
-                                            🗑 Delete
+                            <tr id="srow-{{ student.id }}" class="student-item-row">
+                                <td style="font-size:0.8rem; color:var(--ink-soft); font-family:var(--code-font);">{{ loop.index }}</td>
+                                <td style="font-size:0.85rem; font-weight:600;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width:22px; height:22px; border-radius:50%; background:var(--surface-soft); display:flex; align-items:center; justify-content:center; color:var(--student);">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        </div>
+                                        <span>{{ student.username }}</span>
+                                    </div>
+                                </td>
+                                <td style="font-size:0.8rem; font-family:var(--code-font);">{{ student.register_number or '—' }}</td>
+                                <td class="no-print text-end pe-3">
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <!-- Quick filter to this student's work -->
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterByStudent('{{ student.username }}')" style="border-radius:6px; padding:2px 6px; font-size:0.72rem;" title="View Submissions">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                         </button>
-                                    </form>
+
+                                        <!-- Verification toggle button -->
+                                        <form action="/toggle-student-verification/{{ student.id }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-{% if student.is_verified %}success{% else %}warning{% endif %}" style="border-radius:6px; padding:2px 6px; font-size:0.72rem;" title="Toggle Verification">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete student -->
+                                        <form action="/delete-student/{{ student.id }}" method="POST" class="d-inline"
+                                            onsubmit="return confirmActionModal(event, 'Remove Student', 'Delete {{ student.username }} from the enrolled students list?', this)">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                style="border-radius:6px; padding:2px 6px; font-size:0.72rem;" title="Delete Student">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -512,7 +963,7 @@
                     </table>
                 </div>
                 {% else %}
-                <p class="text-muted small mb-0">No students registered yet.</p>
+                <p class="text-muted small mb-0">No students enrolled yet.</p>
                 {% endif %}
             </div>
 
@@ -521,11 +972,26 @@
 </div>
 
 <script>
+    // ── Apply Quick Topic Template (Full 6 Parameters) ────
+    function applyTemplate(topic, cat, diff, marks, priority, desc) {
+        document.getElementById('postTopic').value = topic;
+        if (document.getElementById('postCategory')) document.getElementById('postCategory').value = cat || 'Computer Science';
+        if (document.getElementById('postDifficulty')) document.getElementById('postDifficulty').value = diff || 'Intermediate';
+        if (document.getElementById('postMarks')) document.getElementById('postMarks').value = marks || '100';
+        if (document.getElementById('postPriority')) document.getElementById('postPriority').value = priority || 'Standard';
+        document.getElementById('postDesc').value = desc;
+        // Smooth scroll to publishing card
+        document.getElementById('postTopic').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('postTopic').focus();
+    }
+
     // ── Live Clock ────────────────────────────────────────
     function updateClock() {
-        document.getElementById('liveClock').innerText =
-            'Today: ' + new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
-            ' | ' + new Date().toLocaleTimeString('en-IN');
+        const el = document.getElementById('liveClock');
+        if (el) {
+            el.innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) +
+                ' | ' + new Date().toLocaleTimeString('en-US');
+        }
     }
     setInterval(updateClock, 1000); updateClock();
 
@@ -536,25 +1002,26 @@
         if (!val) return;
         deadlineTime = new Date(val);
         localStorage.setItem('tutorDeadline', val);
-        showToast('✅ Deadline set!');
+        updateCountdown();
     }
     function updateCountdown() {
         if (!deadlineTime) return;
         const diff = deadlineTime - new Date();
         if (diff <= 0) {
-            document.getElementById('countdown').innerText = '⛔ TIME UP!';
-            document.getElementById('deadlineLabel').innerText = 'Deadline passed';
+            document.getElementById('countdown').innerText = '00:00:00';
+            document.getElementById('deadlineLabel').innerText = 'Deadline expired';
             return;
         }
         const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
         const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
         const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
         document.getElementById('countdown').innerText = h + ':' + m + ':' + s;
-        document.getElementById('deadlineLabel').innerText = 'Until: ' + deadlineTime.toLocaleString('en-IN');
+        document.getElementById('deadlineLabel').innerText = 'Target: ' + deadlineTime.toLocaleString('en-US');
     }
     setInterval(updateCountdown, 1000);
-    if (localStorage.getItem('tutorDeadline'))
+    if (localStorage.getItem('tutorDeadline')) {
         document.getElementById('deadlineInput').value = localStorage.getItem('tutorDeadline');
+    }
 
     // ── Stats + Progress ──────────────────────────────────
     function updateStats() {
@@ -565,9 +1032,9 @@
             const b = row.querySelector('.badge');
             if (!b) return;
             const t = b.innerText.toLowerCase();
-            if (t === 'cleared') cleared++;
-            else if (t === 'pending') pending++;
-            else if (t === 'failed') failed++;
+            if (t.includes('cleared')) cleared++;
+            else if (t.includes('pending')) pending++;
+            else if (t.includes('failed')) failed++;
         });
         const pct = total > 0 ? Math.round((cleared / total) * 100) : 0;
         document.getElementById('statTotal').innerText = total;
@@ -576,62 +1043,171 @@
         document.getElementById('statPct').innerText = pct + '%';
         document.getElementById('progressBar').style.width = pct + '%';
         document.getElementById('progressLabel').innerText = pct + '%';
-        document.getElementById('progressSub').innerText =
-            cleared + ' cleared · ' + pending + ' pending · ' + failed + ' failed';
+        document.getElementById('progressSub').innerText = cleared + ' cleared · ' + pending + ' pending · ' + failed + ' failed';
         buildLeaderboard(rows);
         buildActivityFeed(rows);
+        syncCardView();
     }
 
-    // ── Leaderboard ───────────────────────────────────────
+    // ── Leaderboard with Crisp SVG Icons (Zero Emojis) ───
     function buildLeaderboard(rows) {
         const cleared = [];
         rows.forEach(row => {
             const b = row.querySelector('.badge');
-            if (b && b.innerText.toLowerCase() === 'cleared') {
+            if (b && b.innerText.toLowerCase().includes('cleared')) {
                 const c = row.querySelectorAll('td');
-                cleared.push({ name: c[1]?.innerText || '—', reg: c[2]?.innerText || '—' });
+                cleared.push({ name: c[2]?.innerText.trim() || '—', reg: c[3]?.innerText.trim() || '—' });
             }
         });
-        const medals = ['🥇', '🥈', '🥉'];
+        
+        const medalSvgs = [
+            // Gold Medal
+            `<div style="width:32px; height:32px; border-radius:10px; background:rgba(245,158,11,0.15); color:#f59e0b; display:flex; align-items:center; justify-content:center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            </div>`,
+            // Silver Medal
+            `<div style="width:32px; height:32px; border-radius:10px; background:rgba(148,163,184,0.2); color:#64748b; display:flex; align-items:center; justify-content:center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            </div>`,
+            // Bronze Medal
+            `<div style="width:32px; height:32px; border-radius:10px; background:rgba(217,119,6,0.15); color:#d97706; display:flex; align-items:center; justify-content:center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            </div>`
+        ];
+
+        const defaultBadge = `<div style="width:32px; height:32px; border-radius:10px; background:rgba(79,110,247,0.12); color:var(--tutor); display:flex; align-items:center; justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>`;
+
         const lb = document.getElementById('leaderboard');
-        if (!cleared.length) { lb.innerHTML = '<p class="text-muted small">No cleared students yet.</p>'; return; }
+        if (!cleared.length) {
+            lb.innerHTML = '<p class="text-muted small">No cleared students recorded yet.</p>';
+            return;
+        }
         lb.innerHTML = cleared.slice(0, 5).map((s, i) => `
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e2e8f0;">
-            <span style="font-size:1.2rem;min-width:28px;">${medals[i] || '🎖️'}</span>
-            <div style="flex:1;">
-                <div style="font-weight:600;font-size:0.88rem;">${s.name}</div>
-                <div style="font-size:0.74rem;color:#94a3b8;">Reg: ${s.reg}</div>
-            </div>
-            <span class="badge bg-success">Cleared</span>
-        </div>`).join('');
+            <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);">
+                ${medalSvgs[i] || defaultBadge}
+                <div style="flex:1;">
+                    <div style="font-weight:600;font-size:0.88rem;">${s.name}</div>
+                    <div class="code-font" style="font-size:0.74rem;color:var(--ink-soft);">Reg: ${s.reg}</div>
+                </div>
+                <span class="badge bg-success code-font d-inline-flex align-items-center gap-1" style="font-size:0.72rem;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Cleared
+                </span>
+            </div>`).join('');
     }
 
-    // ── Activity Feed ─────────────────────────────────────
+    // ── Activity Stream (SVG Status Indicators) ───────────
     function buildActivityFeed(rows) {
         const items = [];
         rows.forEach(row => {
             const c = row.querySelectorAll('td');
             const b = row.querySelector('.badge');
             if (!b) return;
-            const status = b.innerText;
-            const color = status === 'Cleared' ? '#22c55e' : status === 'Pending' ? '#f59e0b' : '#ef4444';
-            items.push({ name: c[1]?.innerText, topic: c[3]?.innerText, status, color });
+            const status = b.innerText.trim();
+            const color = status.includes('Cleared') ? 'var(--student)' : status.includes('Pending') ? 'var(--amber)' : '#ef4444';
+            items.push({ name: c[2]?.innerText.trim(), topic: c[4]?.innerText.trim(), status, color });
         });
         const feed = document.getElementById('activityFeed');
-        if (!items.length) { feed.innerHTML = '<p class="text-muted small">No activity yet.</p>'; return; }
+        if (!items.length) {
+            feed.innerHTML = '<p class="text-muted small">Submissions will show up here in real time.</p>';
+            return;
+        }
         feed.innerHTML = items.slice(0, 6).map(i => `
-        <div class="activity-item">
-            <div class="activity-dot" style="background:${i.color};"></div>
-            <div>
-                <span style="font-weight:600;">${i.name}</span>
-                <span style="color:#64748b;"> submitted </span>
-                <span style="font-weight:500;">${i.topic}</span>
-                <span class="badge ms-1" style="background:${i.color}20;color:${i.color};font-size:0.7rem;">${i.status}</span>
-            </div>
-        </div>`).join('');
+            <div class="activity-item">
+                <div style="width:8px; height:8px; border-radius:50%; background:${i.color}; flex-shrink:0;"></div>
+                <div style="flex:1;">
+                    <span style="font-weight:600;">${i.name}</span>
+                    <span style="color:var(--ink-soft);"> · </span>
+                    <span style="font-size:0.8rem;">${i.topic}</span>
+                </div>
+                <span class="badge code-font" style="background:${i.color}15; color:${i.color}; font-size:0.7rem;">${i.status}</span>
+            </div>`).join('');
     }
 
-    // ── Tab Filter ────────────────────────────────────────
+    // ── Batch Selection System ─────────────────────────────
+    function toggleSelectAll(master) {
+        const checkboxes = document.querySelectorAll('#resultsTable tbody tr:not([style*="display: none"]) .row-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+        handleRowSelect();
+    }
+
+    function handleRowSelect() {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        const count = checked.length;
+        const bar = document.getElementById('batchActionBar');
+        if (count > 0) {
+            bar.classList.add('show');
+            document.getElementById('selectedCountBadge').innerText = count + ' Selected';
+        } else {
+            bar.classList.remove('show');
+            document.getElementById('selectAllCheckbox').checked = false;
+        }
+    }
+
+    function clearSelection() {
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('selectAllCheckbox').checked = false;
+        handleRowSelect();
+    }
+
+    function executeBatch(action) {
+        const checked = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+        if (!checked.length) return;
+        const confirmMsg = action === 'delete' ? `Are you sure you want to delete ${checked.length} selected submissions?` :
+            `Apply ${action.replace('_', ' ')} to ${checked.length} selected submissions?`;
+        if (confirm(confirmMsg)) {
+            document.getElementById('batchActionInput').value = action;
+            document.getElementById('batchSelectedIdsInput').value = checked.join(',');
+            document.getElementById('batchActionForm').submit();
+        }
+    }
+
+    // ── Grade & Evaluation Modal ──────────────────────────
+    function openGradeModal(id, studentName, status, score, feedback, submissionText, submissionFile, studentNotes) {
+        document.getElementById('gradeForm').action = '/grade-submission/' + id;
+        document.getElementById('gradeStudentName').innerText = 'Student: ' + studentName;
+        document.getElementById('gradeStatus').value = status.toLowerCase() === 'cleared' ? 'Cleared' : (status.toLowerCase() === 'failed' ? 'failed' : 'pending');
+        document.getElementById('gradeScore').value = score || '';
+        document.getElementById('gradeFeedback').value = feedback || '';
+
+        const workBox = document.getElementById('studentWorkSection');
+        const notesEl = document.getElementById('modalStudentNotes');
+        const codeEl = document.getElementById('modalStudentCode');
+        const fileEl = document.getElementById('modalStudentFileLink');
+
+        if (submissionText || submissionFile || studentNotes) {
+            workBox.style.display = 'block';
+            if (studentNotes) {
+                notesEl.innerText = 'Student Note: ' + studentNotes;
+                notesEl.style.display = 'block';
+            } else {
+                notesEl.style.display = 'none';
+            }
+            if (submissionText) {
+                codeEl.innerText = submissionText;
+                codeEl.style.display = 'block';
+            } else {
+                codeEl.style.display = 'none';
+            }
+            if (submissionFile) {
+                fileEl.innerHTML = `<a href="/uploads/${submissionFile}" target="_blank" class="nav-link-btn" style="border:1px solid var(--line); font-size:0.78rem; display:inline-flex;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg> Download Student Solution File</a>`;
+                fileEl.style.display = 'block';
+            } else {
+                fileEl.style.display = 'none';
+            }
+        } else {
+            workBox.style.display = 'none';
+        }
+
+        document.getElementById('gradeModal').classList.add('show');
+    }
+    function closeGradeModal() {
+        document.getElementById('gradeModal').classList.remove('show');
+    }
+
+    // ── Tab Filters + Topic Filter + Search ────────────────
     let currentTab = 'all';
     function tabFilter(tab, btn) {
         currentTab = tab;
@@ -640,118 +1216,200 @@
         applyFilters();
     }
 
-    // ── Search + Tab Filter ───────────────────────────────
+    function filterByStudent(studentName) {
+        document.getElementById('searchInput').value = studentName;
+        applyFilters();
+        document.getElementById('resultsTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function filterByTopicExact(topicName) {
+        document.getElementById('topicFilter').value = topicName;
+        applyFilters();
+        document.getElementById('resultsTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('topicFilter').value = '';
+        tabFilter('all', document.querySelector('.tab-btn'));
+        applyFilters();
+    }
+
     function applyFilters() {
         const q = document.getElementById('searchInput').value.toLowerCase();
+        const selectedTopic = document.getElementById('topicFilter').value.toLowerCase();
         const rows = document.querySelectorAll('#resultsTable tbody tr');
-        let visible = 0;
+        let count = 0;
         rows.forEach(row => {
             const text = row.innerText.toLowerCase();
             const badge = row.querySelector('.badge') ? row.querySelector('.badge').innerText.toLowerCase() : '';
-            const matchSearch = text.includes(q);
-            const matchTab = currentTab === 'all' || badge === currentTab;
-            if (matchSearch && matchTab) { row.style.display = ''; visible++; }
-            else row.style.display = 'none';
+            const cells = row.querySelectorAll('td');
+            const topicText = cells[4] ? cells[4].innerText.toLowerCase() : '';
+
+            const matchQ = text.includes(q);
+            const matchTopic = !selectedTopic || topicText.includes(selectedTopic);
+            let matchT = true;
+            if (currentTab === 'cleared') matchT = badge.includes('cleared');
+            else if (currentTab === 'pending') matchT = badge.includes('pending');
+            else if (currentTab === 'failed') matchT = badge.includes('failed');
+
+            if (matchQ && matchTopic && matchT) {
+                row.style.display = '';
+                count++;
+            } else {
+                row.style.display = 'none';
+            }
         });
-        document.getElementById('rowCount').innerText = visible + ' student(s)';
+        document.getElementById('rowCount').innerText = count + ' visible';
+        syncCardView();
     }
 
-    // ── Sort Table ────────────────────────────────────────
+    // ── Card View Sync & Toggle ───────────────────────────
+    function setViewMode(mode) {
+        if (mode === 'card') {
+            document.getElementById('tableViewContainer').style.display = 'none';
+            document.getElementById('cardViewContainer').style.display = 'block';
+            document.getElementById('btnTableView').classList.remove('active');
+            document.getElementById('btnCardView').classList.add('active');
+            syncCardView();
+        } else {
+            document.getElementById('tableViewContainer').style.display = 'block';
+            document.getElementById('cardViewContainer').style.display = 'none';
+            document.getElementById('btnTableView').classList.add('active');
+            document.getElementById('btnCardView').classList.remove('active');
+        }
+    }
+
+    function syncCardView() {
+        const rows = document.querySelectorAll('#resultsTable tbody tr');
+        const grid = document.getElementById('cardGrid');
+        if (!grid) return;
+        let html = '';
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const cells = row.querySelectorAll('td');
+            const subId = row.getAttribute('data-id');
+            const name = cells[2]?.innerText.trim() || '—';
+            const reg = cells[3]?.innerText.trim() || '—';
+            const topic = cells[4]?.querySelector('div')?.innerText.trim() || cells[4]?.innerText.trim() || '—';
+            const score = cells[5]?.innerText.trim() || '—';
+            const badgeHtml = cells[6]?.innerHTML || '';
+            const isSynthetic = subId && String(subId).startsWith('p-');
+
+            html += `
+                <div class="submission-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="fw-bold mb-0">${name}</h6>
+                            <span class="code-font text-muted small">Reg: ${reg}</span>
+                        </div>
+                        <div>${badgeHtml}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted code-font d-block" style="font-size:0.72rem;">TOPIC</small>
+                        <span style="font-size:0.86rem; font-weight:500;">${topic}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top" style="border-color:var(--line) !important;">
+                        <span class="code-font small text-muted">Score: <strong>${score}</strong></span>
+                        ${!isSynthetic ? `
+                            <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:0.72rem;" onclick="openGradeModal('${subId}', '${name}', 'Cleared', '${score !== '—' ? score : ''}', '')">
+                                Grade
+                            </button>` : ''}
+                    </div>
+                </div>`;
+        });
+        grid.innerHTML = html || '<p class="text-muted small p-3">No matching submissions.</p>';
+    }
+
+    // ── Table Column Sorting ──────────────────────────────
     let sortDir = {};
-    function sortTable(col) {
-        const tbody = document.querySelector('#resultsTable tbody');
+    function sortTable(colIndex) {
+        const table = document.getElementById('resultsTable');
+        const tbody = table.querySelector('tbody');
         const rows = Array.from(tbody.querySelectorAll('tr'));
-        sortDir[col] = !sortDir[col];
+        sortDir[colIndex] = !sortDir[colIndex];
         rows.sort((a, b) => {
-            const aT = a.querySelectorAll('td')[col]?.innerText.trim().toLowerCase() || '';
-            const bT = b.querySelectorAll('td')[col]?.innerText.trim().toLowerCase() || '';
-            return sortDir[col] ? aT.localeCompare(bT) : bT.localeCompare(aT);
+            const aVal = a.cells[colIndex]?.innerText.trim() || '';
+            const bVal = b.cells[colIndex]?.innerText.trim() || '';
+            return sortDir[colIndex] ? aVal.localeCompare(bVal, undefined, {numeric: true}) : bVal.localeCompare(aVal, undefined, {numeric: true});
         });
         rows.forEach(r => tbody.appendChild(r));
     }
 
-    // ── Delete with Confirm Modal ─────────────────────────
-    let pendingForm = null;
-    function confirmDelete(e, name, form) {
-        e.preventDefault();
-        pendingForm = form;
-        document.getElementById('modalStudentName').innerText = 'Student: ' + name;
-        document.getElementById('confirmModal').classList.add('show');
-        return false;
+    // ── Filter Enrolled Students Box ──────────────────────
+    function filterEnrolledStudents() {
+        const q = document.getElementById('studentSearchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#studentsTable tbody tr');
+        let count = 0;
+        rows.forEach(r => {
+            const text = r.innerText.toLowerCase();
+            if (text.includes(q)) {
+                r.style.display = '';
+                count++;
+            } else {
+                r.style.display = 'none';
+            }
+        });
+        document.getElementById('studentCountBadge').innerText = count + ' visible';
     }
-    // Student Account Delete (reuses same modal)
-    function confirmStudentDelete(e, name, form) {
+
+    // ── Export CSV & JSON ─────────────────────────────────
+    function exportCSV() {
+        const rows = document.querySelectorAll('#resultsTable tr');
+        let csv = [];
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const cols = Array.from(row.querySelectorAll('th, td')).slice(1, 7);
+            csv.push(cols.map(c => '"' + c.innerText.replace(/"/g, '""').trim() + '"').join(','));
+        });
+        const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'edusync_class_report_' + new Date().toISOString().slice(0, 10) + '.csv';
+        a.click();
+    }
+
+    function exportJSON() {
+        const rows = Array.from(document.querySelectorAll('#resultsTable tbody tr'));
+        const data = rows.filter(r => r.style.display !== 'none').map(r => {
+            const c = r.querySelectorAll('td');
+            return {
+                student: c[2]?.innerText.trim(),
+                register_number: c[3]?.innerText.trim(),
+                topic: c[4]?.innerText.trim(),
+                score: c[5]?.innerText.trim(),
+                status: c[6]?.innerText.trim()
+            };
+        });
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'edusync_class_report_' + new Date().toISOString().slice(0, 10) + '.json';
+        a.click();
+    }
+
+    // ── Confirm Modal ─────────────────────────────────────
+    let pendingActionForm = null;
+    function confirmActionModal(e, title, msg, form) {
         e.preventDefault();
-        pendingForm = form;
-        document.getElementById('modalStudentName').innerText =
-            '⚠️ This will permanently delete student: ' + name + ' and all their submissions!';
+        pendingActionForm = form;
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalStudentName').innerText = msg;
         document.getElementById('confirmModal').classList.add('show');
         return false;
     }
     function closeModal() {
         document.getElementById('confirmModal').classList.remove('show');
-        pendingForm = null;
+        pendingActionForm = null;
     }
-    function submitDelete() {
-        const formToSubmit = pendingForm;
-        closeModal();
-        if (formToSubmit) {
-            formToSubmit.submit();
-        }
-    }
-    // Close modal on backdrop click
-    document.getElementById('confirmModal').addEventListener('click', function (e) {
-        if (e.target === this) closeModal();
-    });
-
-    // ── Export CSV ────────────────────────────────────────
-    function exportCSV() {
-        const rows = document.querySelectorAll('#resultsTable tbody tr');
-        let csv = 'No,Student,Reg No,Topic,Status\n';
-        let i = 1;
-        rows.forEach(row => {
-            if (row.style.display === 'none') return;
-            const c = row.querySelectorAll('td');
-            const b = row.querySelector('.badge');
-            csv += `${i++},"${c[1]?.innerText || ''}","${c[2]?.innerText || ''}","${c[3]?.innerText || ''}","${b?.innerText || ''}"\n`;
-        });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-        a.download = 'student_results_' + new Date().toISOString().slice(0, 10) + '.csv';
-        a.click();
-        showToast('📥 CSV downloaded!');
+    function submitAction() {
+        if (pendingActionForm) pendingActionForm.submit();
     }
 
-    // ── Dark Mode ─────────────────────────────────────────
-    function toggleDark() {
-        document.body.classList.toggle('dark-mode');
-        const on = document.body.classList.contains('dark-mode');
-        document.getElementById('darkBtn').innerText = on ? '☀️ Light' : '🌙 Dark';
-        document.getElementById('tableHead').style.backgroundColor = on ? '#1e293b' : '#fff';
-        localStorage.setItem('darkMode', on ? 'on' : 'off');
-    }
-
-    // ── Toast ─────────────────────────────────────────────
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 2500);
-    }
-
-    // ── Init ──────────────────────────────────────────────
-    window.onload = () => {
-        if (localStorage.getItem('darkMode') === 'on') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkBtn').innerText = '☀️ Light';
-            document.getElementById('tableHead').style.backgroundColor = '#1e293b';
-        }
-        if (localStorage.getItem('tutorDeadline'))
-            document.getElementById('deadlineInput').value = localStorage.getItem('tutorDeadline');
+    window.onload = function() {
         applyFilters();
         updateStats();
         updateCountdown();
     };
 </script>
-
 {% endblock %}

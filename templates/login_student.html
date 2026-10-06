@@ -1,36 +1,83 @@
 {% extends "base.html" %}
-{% block title %}EduSync - Student Login{% endblock %}
+{% block title %}EduSync — Student Login{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card p-4 shadow-sm border-top border-success border-5 rounded-4">
-            <div class="text-center mb-4">
-                <i class="fas fa-user-graduate fa-3x text-success"></i>
-                <h4 class="fw-bold mt-2">Student Login</h4>
-                <p class="text-muted small">Enter your details to view today's topic</p>
-            </div>
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Full Name</label>
-                    <input type="text" name="username" class="form-control" placeholder="Enter your name" required>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="glass-card p-4 p-md-5" style="--c1: var(--student); --c2: var(--tutor);">
+                <!-- Header Icon & Title -->
+                <div class="text-center mb-4">
+                    <div style="width: 64px; height: 64px; border-radius: 20px; background: rgba(16, 185, 129, 0.12); color: var(--student); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                    </div>
+                    <span class="badge rounded-pill code-font mb-2" style="background: rgba(16, 185, 129, 0.12); color: var(--student); font-size: 0.72rem; letter-spacing: 1.5px;">LEARNER ACCESS</span>
+                    <h3 class="fw-bold mb-1">Student <span style="background: linear-gradient(90deg, var(--student), var(--tutor)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Login</span></h3>
+                    <p class="text-muted small">Enter your details to view today's assignments</p>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Register Number</label>
-                    <input type="text" name="register_number" class="form-control" placeholder="Enter register number"
-                        required>
+
+                <!-- Login Form -->
+                <form action="/student-login" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-semibold text-uppercase code-font">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-3 border-end-0">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </span>
+                            <input type="text" name="student_name" id="studentName" class="form-control rounded-end-3 border-start-0" placeholder="e.g. Test Student" required autocomplete="name">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-semibold text-uppercase code-font">Register Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-3 border-end-0">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                            </span>
+                            <input type="text" name="register_number" id="studentReg" class="form-control rounded-end-3 border-start-0 code-font" placeholder="e.g. REG001" required>
+                        </div>
+                    </div>
+
+                    <!-- Demo Fill Chip -->
+                    <div class="mb-4 p-2 rounded-3 code-font d-flex justify-content-between align-items-center" style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--student); font-size: 0.74rem;">
+                        <span class="text-muted">Demo: <strong>Test Student</strong> / <strong>REG001</strong></span>
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 fw-semibold" style="font-size:0.72rem; color: var(--student);" onclick="fillStudentDemo()">Auto-fill</button>
+                    </div>
+
+                    <button type="submit" class="btn-premium btn-student-premium w-100 py-3 mb-3">
+                        <span>Enter Student Portal</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </button>
+                </form>
+
+                <!-- Footer Links -->
+                <div class="text-center pt-2">
+                    <p class="text-muted small mb-2">New student? <a href="/register-student" class="fw-semibold text-decoration-none" style="color: var(--student);">Register here</a></p>
+                    <a href="/" class="text-muted small text-decoration-none d-inline-flex align-items-center gap-1" style="opacity: 0.7;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        <span>Back to Home</span>
+                    </a>
                 </div>
-                <button type="submit" class="btn btn-success w-100 py-2 rounded-pill">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login
-                </button>
-            </form>
-            <div class="text-center mt-3">
-                <p class="small">Not registered? <a href="{{ url_for('register_student') }}"
-                        class="text-decoration-none text-success">Create account</a></p>
-                <a href="/" class="text-muted small">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Home
-                </a>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function fillStudentDemo() {
+        document.getElementById('studentName').value = 'Test Student';
+        document.getElementById('studentReg').value = 'REG001';
+    }
+</script>
 {% endblock %}

@@ -1,103 +1,81 @@
 {% extends "base.html" %}
-
-{% block title %}
-EduSync - Tutor Login
-{% endblock %}
+{% block title %}EduSync — Tutor Login{% endblock %}
 
 {% block content %}
-
-<div class="row justify-content-center mt-5">
-
-    <div class="col-md-4">
-
-        <div class="card p-4 shadow-sm border-top border-primary border-5 rounded-4">
-
-            <div class="text-center mb-4">
-
-                <i class="fas fa-chalkboard-teacher fa-3x text-primary"></i>
-
-                <h4 class="fw-bold mt-2">
-
-                    Tutor Login
-
-                </h4>
-
-                <p class="text-muted small">
-
-                    Sign in to manage assignments
-
-                </p>
-
-            </div>
-
-            <!-- LOGIN FORM -->
-
-            <form action="/tutor-login-submit" method="POST">
-
-                <div class="mb-3">
-
-                    <label class="form-label fw-semibold">
-
-                        Username
-
-                    </label>
-
-                    <input type="text" name="username" class="form-control" placeholder="Enter username" required>
-
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="glass-card p-4 p-md-5">
+                <!-- Header Icon & Title -->
+                <div class="text-center mb-4">
+                    <div style="width: 64px; height: 64px; border-radius: 20px; background: rgba(79, 110, 247, 0.12); color: var(--tutor); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                        </svg>
+                    </div>
+                    <span class="badge rounded-pill code-font mb-2" style="background: rgba(79, 110, 247, 0.12); color: var(--tutor); font-size: 0.72rem; letter-spacing: 1.5px;">EDUCATOR ACCESS</span>
+                    <h3 class="fw-bold mb-1">Tutor <span style="background: linear-gradient(90deg, var(--tutor), var(--student)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Login</span></h3>
+                    <p class="text-muted small">Sign in to manage topics & track submissions</p>
                 </div>
 
-                <div class="mb-4">
+                <!-- Login Form -->
+                <form action="/tutor-login" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-semibold text-uppercase code-font">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-3 border-end-0">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </span>
+                            <input type="text" name="username" id="tutorUsername" class="form-control rounded-end-3 border-start-0" placeholder="Enter username" required autocomplete="username">
+                        </div>
+                    </div>
 
-                    <label class="form-label fw-semibold">
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-semibold text-uppercase code-font">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text rounded-start-3 border-end-0">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            </span>
+                            <input type="password" name="password" id="tutorPassword" class="form-control rounded-end-3 border-start-0" placeholder="••••••••" required autocomplete="current-password">
+                        </div>
+                    </div>
 
-                        Password
+                    <!-- Demo Fill Chip -->
+                    <div class="mb-4 p-2 rounded-3 code-font d-flex justify-content-between align-items-center" style="background: rgba(79, 110, 247, 0.08); border: 1px dashed var(--tutor); font-size: 0.74rem;">
+                        <span class="text-muted">Demo: <strong>admin</strong> / <strong>admin123</strong></span>
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 fw-semibold" style="font-size:0.72rem; color: var(--tutor);" onclick="fillDemo()">Auto-fill</button>
+                    </div>
 
-                    </label>
+                    <button type="submit" class="btn-premium w-100 py-3 mb-3">
+                        <span>Sign In</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </button>
+                </form>
 
-                    <input type="password" name="password" class="form-control" placeholder="Enter password" required>
-
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill">
-
-                    <i class="fas fa-sign-in-alt me-2"></i>
-
-                    Login
-
-                </button>
-
-            </form>
-
-            <!-- FOOTER -->
-
-            <div class="text-center mt-3">
-
-                <p class="small">
-
-                    New tutor?
-
-                    <a href="/register-tutor" class="text-decoration-none">
-
-                        Create an account
-
+                <!-- Footer Links -->
+                <div class="text-center pt-2">
+                    <p class="text-muted small mb-2">New tutor? <a href="/register-tutor" class="fw-semibold text-decoration-none" style="color: var(--tutor);">Create an account</a></p>
+                    <a href="/" class="text-muted small text-decoration-none d-inline-flex align-items-center gap-1" style="opacity: 0.7;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        <span>Back to Home</span>
                     </a>
-
-                </p>
-
-                <a href="/" class="text-muted small">
-
-                    <i class="fas fa-arrow-left me-1"></i>
-
-                    Back to Home
-
-                </a>
-
+                </div>
             </div>
-
         </div>
-
     </div>
-
 </div>
 
+<script>
+    function fillDemo() {
+        document.getElementById('tutorUsername').value = 'admin';
+        document.getElementById('tutorPassword').value = 'admin123';
+    }
+</script>
 {% endblock %}
